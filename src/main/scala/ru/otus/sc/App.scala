@@ -16,12 +16,7 @@ import ru.otus.sc.lazyV.model.LazyValResponse
 import ru.otus.sc.lazyV.service.LazyValService
 import ru.otus.sc.lazyV.service.impl.LazyValServiceImpl
 import ru.otus.sc.store.dao.impl.StoreDaoImpl
-import ru.otus.sc.store.model.{
-  StoreGetAllResponse,
-  StoreGetKeysResponse,
-  StoreGetRequest,
-  StoreGetResponse
-}
+import ru.otus.sc.store.model._
 import ru.otus.sc.store.service.StoreService
 import ru.otus.sc.store.service.impl.StoreServiceImpl
 
