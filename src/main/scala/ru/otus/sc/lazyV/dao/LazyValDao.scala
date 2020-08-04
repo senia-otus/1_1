@@ -11,4 +11,10 @@ trait LazyValDao {
     * @return
     */
   def getLazyVal: Any
+
+  /**
+    * Get flag of first call
+    * @return called or not
+    */
+  def isCalled: Boolean
 }

@@ -12,7 +12,7 @@ import ru.otus.sc.greet.model._
 import ru.otus.sc.greet.service.GreetingService
 import ru.otus.sc.greet.service.impl.GreetingServiceImpl
 import ru.otus.sc.lazyV.dao.impl.LazyValDaoImpl
-import ru.otus.sc.lazyV.model.LazyValResponse
+import ru.otus.sc.lazyV.model.{LazyValCalledResponse, LazyValResponse}
 import ru.otus.sc.lazyV.service.LazyValService
 import ru.otus.sc.lazyV.service.impl.LazyValServiceImpl
 import ru.otus.sc.store.dao.impl.StoreDaoImpl
@@ -89,6 +89,13 @@ trait App {
     * @return response with lazy value
     */
   def lazyValueGet(): LazyValResponse
+
+  /**
+    * LazyValService. Get flag isCalled
+    *
+    * @return response with flag isCalled
+    */
+  def lazyValueIsCaled(): LazyValCalledResponse
 }
 
 object App {
@@ -184,6 +191,16 @@ object App {
     override def lazyValueGet(): LazyValResponse = {
       counts.countUp("lazyValueGet")
       lazyVal.getLazyValue
+    }
+
+    /**
+      * LazyValService. Get flag isCalled
+      *
+      * @return response with flag isCalled
+      */
+    override def lazyValueIsCaled(): LazyValCalledResponse = {
+      counts.countUp("lazyValueIsCalled")
+      lazyVal.getIsCalled
     }
   }
 
