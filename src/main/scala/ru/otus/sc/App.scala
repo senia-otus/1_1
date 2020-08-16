@@ -1,5 +1,9 @@
 package ru.otus.sc
 
+import ru.otus.sc.countdown.dao.impl.CountdownDaoImpl
+import ru.otus.sc.countdown.model.{CountdownRequest, CountdownResponse}
+import ru.otus.sc.countdown.service.CountdownService
+import ru.otus.sc.countdown.service.impl.CountdownServiceImpl
 import ru.otus.sc.counter.dao.impl.CounterDaoImpl
 import ru.otus.sc.counter.model.{CounterRequest, CounterResponse}
 import ru.otus.sc.counter.service.CounterService
@@ -27,6 +31,7 @@ import ru.otus.sc.sum.service.impl.SumServiceImpl
 
 // Helper class which aggregates service entries to single point
 case class Config(
+    countdowning: CountdownService,
     counting: CounterService,
     echoing: EchoService,
     getting: StorageService,
@@ -37,20 +42,30 @@ case class Config(
 
 object Config {
   def apply(): Config = {
-    val CounterDao      = new CounterDaoImpl
-    val counterService  = new CounterServiceImpl(CounterDao)
-    val echoDao         = new EchoDaoImpl
-    val echoService     = new EchoServiceImpl(echoDao)
-    val greetingDao     = new GreetingDaoImpl
-    val greetingService = new GreetingServiceImpl(greetingDao)
-    val storageDao      = new StorageDaoImpl
-    val storageService  = new StorageServiceImpl(storageDao)
-    val reverseDao      = new ReverseDaoImpl
-    val reverseService  = new ReverseServiceImpl(reverseDao)
-    val sumDao          = new SumDaoImpl
-    val sumService      = new SumServiceImpl(sumDao)
+    val CountdownDao     = new CountdownDaoImpl
+    val countdownService = new CountdownServiceImpl(CountdownDao)
+    val CounterDao       = new CounterDaoImpl
+    val counterService   = new CounterServiceImpl(CounterDao)
+    val echoDao          = new EchoDaoImpl
+    val echoService      = new EchoServiceImpl(echoDao)
+    val greetingDao      = new GreetingDaoImpl
+    val greetingService  = new GreetingServiceImpl(greetingDao)
+    val storageDao       = new StorageDaoImpl
+    val storageService   = new StorageServiceImpl(storageDao)
+    val reverseDao       = new ReverseDaoImpl
+    val reverseService   = new ReverseServiceImpl(reverseDao)
+    val sumDao           = new SumDaoImpl
+    val sumService       = new SumServiceImpl(sumDao)
 
-    Config(counterService, echoService, storageService, greetingService, reverseService, sumService)
+    Config(
+      countdownService,
+      counterService,
+      echoService,
+      storageService,
+      greetingService,
+      reverseService,
+      sumService
+    )
   }
 }
 
@@ -59,9 +74,19 @@ trait App {
   // every call increases counter value by 1
   // counter can be reset to initial value with `clear` flag
   def getCount(request: CounterRequest): CounterResponse
+  // provide countdown started from `initValue` with auto-decrease value
+  // has to be initiated with `CountdownClearRequest(initValue)`
+  // otherwise it has "Done" state by default
+  // when countdown reaches 0 it stops decrease value and returns 0
+  // can be reset with `CountdownClearRequest(initValue)`
+  // `initValue` less than 2 leads to set the countdown to "Done" state
+  // default `initValue` is 1
+  def countdown(request: CountdownRequest): CountdownResponse
   // reply on requested value with the same value
   // echo value can be multiplied up to 5 times with `repeatNum` value
-  // no multiply answer by default
+  // no multiply answer by default (`repeatNum` is 1)
+  // proper values return answer with `EchoAnswerResponse`
+  // bad values return error with `EchoErrorResponse`
   def echo(request: EchoRequest): EchoResponse
   // provide value by requested key
   // in current implementation keys are one, two, three
@@ -82,11 +107,17 @@ object App {
   def apply(): App = new AppImpl(Config())
 
   private class AppImpl(config: Config) extends App {
-    def getCount(request: CounterRequest): CounterResponse    = config.counting.getCount(request)
-    def echo(request: EchoRequest): EchoResponse              = config.echoing.echo(request)
-    def get(request: StorageRequest): Option[StorageResponse] = config.getting.get(request)
-    def greet(request: GreetRequest): GreetResponse           = config.greeting.greet(request)
-    def reverse(request: ReverseRequest): ReverseResponse     = config.reversing.reverse(request)
-    def sum(request: SumRequest): SumResponse                 = config.summing.sum(request)
+    def countdown(request: CountdownRequest): CountdownResponse =
+      config.countdowning.countdown(request)
+    def getCount(request: CounterRequest): CounterResponse =
+      config.counting.getCount(request)
+    def echo(request: EchoRequest): EchoResponse = config.echoing.echo(request)
+    def get(request: StorageRequest): Option[StorageResponse] =
+      config.getting.get(request)
+    def greet(request: GreetRequest): GreetResponse =
+      config.greeting.greet(request)
+    def reverse(request: ReverseRequest): ReverseResponse =
+      config.reversing.reverse(request)
+    def sum(request: SumRequest): SumResponse = config.summing.sum(request)
   }
 }

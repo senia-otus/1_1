@@ -4,9 +4,9 @@ sealed trait EchoResponse {
   def isValid: Boolean
 }
 
-case class EchoResponseAnswer(answer: String) extends EchoResponse {
+case class EchoAnswerResponse(answer: String) extends EchoResponse {
   def isValid = true
 }
-case class EchoResponseError(error: String) extends EchoResponse {
+case class EchoErrorResponse(error: String) extends EchoResponse {
   def isValid = false
 }
