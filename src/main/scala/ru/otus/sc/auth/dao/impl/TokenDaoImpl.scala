@@ -3,7 +3,6 @@ package ru.otus.sc.auth.dao.impl
 import java.security.MessageDigest
 
 import ru.otus.sc.auth.dao.TokenDao
-import javax.xml.bind.DatatypeConverter
 
 class TokenDaoImpl extends TokenDao {
 
@@ -12,7 +11,7 @@ class TokenDaoImpl extends TokenDao {
   override def generateToken(str: String): String = {
     md5.update(str.getBytes())
 
-    DatatypeConverter.printHexBinary(md5.digest)
+    new String(md5.digest)
   }
 
 }
