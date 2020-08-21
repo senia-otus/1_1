@@ -1,6 +1,7 @@
 package ru.otus.sc.greet
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers._
 import ru.otus.sc.App
 import ru.otus.sc.greet.model.GreetRequest
 
@@ -13,25 +14,25 @@ class GreetingServiceSpec extends AnyWordSpec {
   "A greet" when {
     "with default" should {
       "have default flag isHuman true" in {
-        assert(defaultGreet.isHuman)
+        defaultGreet.isHuman shouldEqual true
       }
     }
     "from human" should {
       "have flag isHuman true" in {
-        assert(humanGreet.isHuman)
+        humanGreet.isHuman shouldEqual true
       }
       "have response with containing name" in {
         val response = app.greet(humanGreet)
-        assert(response.greeting.contains(humanGreet.name))
+        response.greeting should include(humanGreet.name)
       }
     }
     "from not human" should {
       "have flag isHuman false" in {
-        assert(!notHumanGreet.isHuman)
+        notHumanGreet.isHuman should not equal true
       }
       "have response with no containing name" in {
         val response = app.greet(notHumanGreet)
-        assert(!response.greeting.contains(notHumanGreet.name))
+        response.greeting should not include notHumanGreet.name
       }
     }
   }

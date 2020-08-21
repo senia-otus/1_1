@@ -1,6 +1,7 @@
 package ru.otus.sc.counts
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers._
 import ru.otus.sc.App
 import ru.otus.sc.counts.model.{CountOfRequest, CountUpRequest}
 import ru.otus.sc.greet.model.GreetRequest
@@ -13,11 +14,11 @@ class CountsServiceSpec extends AnyWordSpec {
       val app: App = App()
       "have empty key-value map" in {
         val result = app.countsAll()
-        assert(result.info.isEmpty)
+        result.info shouldBe empty
       }
       "return zero with request" in {
         val result = app.countOf(CountOfRequest(callCounter.key))
-        assert(result.counts == 0)
+        result.counts shouldEqual 0
       }
     }
     "increment custom counter" should {
@@ -25,14 +26,14 @@ class CountsServiceSpec extends AnyWordSpec {
       val incRequest = app.customCountUp(callCounter)
       val allMap     = app.countsAll()
       "return response with change" in {
-        assert(incRequest.from < incRequest.to)
-        assert(incRequest.to != 0)
+        incRequest.from should not equal incRequest.to
+        incRequest.to should not equal 0
       }
       "have none empty key-value map" in {
-        assert(allMap.info.nonEmpty)
+        allMap.info should not be empty
       }
       "have name of custom call counter" in {
-        assert(allMap.info.contains(callCounter.key))
+        allMap.info.keys should contain(callCounter.key)
       }
     }
     "increment greet call counter" should {
@@ -41,11 +42,11 @@ class CountsServiceSpec extends AnyWordSpec {
 
       "have registered call counter 'greet'" in {
         val allMap = app.countsAll()
-        assert(allMap.info.contains("greet"))
+        allMap.info.keys should contain("greet")
       }
       "have count of call counter 'greet' eq 1" in {
         val response = app.countOf(CountOfRequest("greet"))
-        assert(response.counts == 1)
+        response.counts shouldEqual 1
       }
     }
   }

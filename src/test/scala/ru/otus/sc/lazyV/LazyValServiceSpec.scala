@@ -1,6 +1,7 @@
 package ru.otus.sc.lazyV
 
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers._
 import ru.otus.sc.App
 
 class LazyValServiceSpec extends AnyWordSpec {
@@ -8,7 +9,7 @@ class LazyValServiceSpec extends AnyWordSpec {
     "before call" when {
       val app: App = App()
       "have flag 'isCalled' == 'false'" in {
-        assert(!app.lazyValueIsCaled().value)
+        app.lazyValueIsCaled().value shouldEqual false
       }
     }
 
@@ -16,11 +17,11 @@ class LazyValServiceSpec extends AnyWordSpec {
       val app: App = App()
       val response = app.lazyValueGet()
       "have value in response" in {
-        assert(response.existingValue.toString != "")
+        response.existingValue.toString should not be empty
       }
 
       "have flag 'isCalled' == 'true'" in {
-        assert(app.lazyValueIsCaled().value)
+        app.lazyValueIsCaled().value shouldEqual true
       }
     }
 
@@ -30,10 +31,10 @@ class LazyValServiceSpec extends AnyWordSpec {
       val response2 = app.lazyValueGet()
 
       "have same response" in {
-        assert(response1 == response2)
+        response1 shouldEqual response2
       }
       "have flag 'isCalled' == 'true'" in {
-        assert(app.lazyValueIsCaled().value)
+        app.lazyValueIsCaled().value shouldEqual true
       }
     }
   }
