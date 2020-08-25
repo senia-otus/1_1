@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
-    <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyy/MM/dd HH:mm:ss.SSS} %-5level - %msg%n"/>
-        </Console>
-    </Appenders>
-
-    <Loggers>
-        <Root level="info">
-            <AppenderRef ref="Console"/>
-        </Root>
-    </Loggers>
+<Configuration name="ScalaOtus" status="error">
+<Appenders>
+    <Console name="Console">
+        <PatternLayout>
+            <Pattern>%d [%X{correlationId}] %5p %c{1} %X %F:%L - %m%n</Pattern>
+        </PatternLayout>
+    </Console>
+</Appenders>
+<Loggers>
+    <Root level="TRACE">
+        <AppenderRef ref="Console"/>
+    </Root>
+</Loggers>
 </Configuration>

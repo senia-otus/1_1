@@ -16,7 +16,7 @@ import ru.otus.sc.post.service.impl.PostServiceImpl
 import ru.otus.sc.tags.dao.impl.TagDaoImpl
 import ru.otus.sc.user.dao.impl.UserDaoImpl
 
-trait App {
+trait Application {
   def greet(request: GreetRequest): GreetResponse
   def auth(request: AuthRequest): AuthResponse
   def register(request: RegisterRequest): RegisterResponse
@@ -26,12 +26,12 @@ trait App {
   def searchPosts(mask: String): Seq[PostView]
 }
 
-object App {
-  private class AppImpl(
+object Application {
+  private class ApplicationImpl(
                          greeting: GreetingService,
                          authService: AuthService,
                          postService: PostService
-                       ) extends App {
+                       ) extends Application {
 
     override def greet(request: GreetRequest): GreetResponse = greeting.greet(request)
     override def auth(request: AuthRequest): AuthResponse = authService.auth(request)
@@ -43,7 +43,7 @@ object App {
 
   }
 
-  def apply(): App = {
+  def apply(): Application = {
     val greetingDao     = new GreetingDaoImpl  
     val greetingService = new GreetingServiceImpl(greetingDao)
     val authDao         = new AuthDaoImpl
@@ -54,6 +54,6 @@ object App {
     val authService     = new AuthServiceImpl(authDao)
     val postService     = new PostServiceImpl(postDao, userDao, commentsDao, tagsDao)
 
-    new AppImpl(greetingService, authService, postService)
+    new ApplicationImpl(greetingService, authService, postService)
   }
 }
