@@ -8,7 +8,13 @@ import akka.http.scaladsl.server.Directives._
 import org.apache.logging.log4j.scala.Logging
 import org.flywaydb.core.Flyway
 import ru.otus.sc.Migrator.migrate
+import ru.otus.sc.auth.AuthRoute
+import ru.otus.sc.comment.CommentRoute
 import ru.otus.sc.config.{ApplicationConfig, DatabaseConfig}
+import ru.otus.sc.greet.GreetRoute
+import ru.otus.sc.post.PostRoute
+import ru.otus.sc.tags.TagsRoute
+import ru.otus.sc.user.UserRoute
 
 import scala.io.StdIn
 
@@ -40,7 +46,16 @@ object Main extends App with Logging {
     }
 
   logger.info("Assembling http server...")
-  val bindingFuture = Http().newServerAt(app.host, app.port).bind(route)
+  val bindingFuture = Http().newServerAt(app.host, app.port).bind(
+    concat(
+      new GreetRoute().route,
+      new AuthRoute().route,
+      new PostRoute().route,
+      new UserRoute().route,
+      new TagsRoute().route,
+      new CommentRoute().route,
+    )
+  )
 
   logger.info(s"Server online at http://${app.host}:${app.port}/\nPress RETURN to stop...")
   StdIn.readLine() // let it run until user presses return

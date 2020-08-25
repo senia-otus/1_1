@@ -1,3 +1,3 @@
 package ru.otus.sc.greet.model
 
-case class GreetResponse(greeting: String)
+final case class GreetResponse(greeting: String)
