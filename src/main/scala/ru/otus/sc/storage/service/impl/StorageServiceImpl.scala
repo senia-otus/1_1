@@ -1,15 +1,39 @@
 package ru.otus.sc.storage.service.impl
 
 import ru.otus.sc.storage.dao.StorageDao
-import ru.otus.sc.storage.model.{StorageRequest, StorageResponse}
+import ru.otus.sc.storage.model._
 import ru.otus.sc.storage.service.StorageService
 
-class StorageServiceImpl(dao: StorageDao) extends StorageService {
+class StorageServiceImpl[K, V](dao: StorageDao[K, V]) extends StorageService[K, V] {
+  def createStorage(request: CreateStorageRequest[K, V]): CreateStorageResponse[K, V] =
+    dao
+      .createStorage(request.entry)
+      .map(CreateStorageResponse.Created[K, V])
+      .getOrElse(CreateStorageResponse.ErrorKeyExists[K, V](request.entry.key))
 
-  def get(request: StorageRequest): Option[StorageResponse] = {
-    val value = dao.get(request.storageKey)
-    // Can not use pattern matching or .map, so use if/else
-    if (value.nonEmpty) Some(StorageResponse(value.get))
-    else None
+  def getStorage(request: GetStorageRequest[K, V]): GetStorageResponse[K, V] =
+    dao
+      .getStorage(request.key)
+      .map(GetStorageResponse.Found[K, V])
+      .getOrElse(GetStorageResponse.NotFound[K, V](request.key))
+
+  def deleteStorage(request: DeleteStorageRequest[K, V]): DeleteStorageResponse[K, V] =
+    dao
+      .deleteStorage(request.key)
+      .map(DeleteStorageResponse.Deleted[K, V])
+      .getOrElse(DeleteStorageResponse.NotFound[K, V](request.key))
+
+  def updateStorage(request: UpdateStorageRequest[K, V]): UpdateStorageResponse[K, V] =
+    dao
+      .updateStorage(request.entry)
+      .map(UpdateStorageResponse.Updated[K, V])
+      .getOrElse(UpdateStorageResponse.NotFound[K, V](request.entry.key))
+
+  def findStorages(request: FindStoragesRequest[K, V]): FindStoragesResponse[K, V] = {
+    val found = request match {
+      case FindStoragesRequest.ByValue(value)               => dao.findByValue(value)
+      case FindStoragesRequest.ValuesByPredicate(predicate) => dao.findValuesByPredicate(predicate)
+    }
+    FindStoragesResponse.Result[K, V](found)
   }
 }

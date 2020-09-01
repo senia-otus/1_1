@@ -1,7 +1,11 @@
 package ru.otus.sc.countdown.service
 
-import ru.otus.sc.countdown.model.{CountdownRequest, CountdownResponse}
+import ru.otus.sc.countdown.model._
 
 trait CountdownService {
-  def countdown(request: CountdownRequest): CountdownResponse
+  def createCountdown(request: CreateCountdownRequest): CreateCountdownResponse
+  def deleteCountdown(request: DeleteCountdownRequest): DeleteCountdownResponse
+  def updateCountdown(request: UpdateCountdownRequest): UpdateCountdownResponse
+  def getCountdown(request: GetCountdownRequest): GetCountdownResponse
+  def findCountdowns(request: FindCountdownsRequest): FindCountdownsResponse
 }
