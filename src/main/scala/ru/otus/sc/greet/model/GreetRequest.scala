@@ -1,3 +1,5 @@
 package ru.otus.sc.greet.model
 
-case class GreetRequest(name: String, isHuman: Boolean = true)
+case class GreetRequest[T](name: T, isHuman: Boolean = true)(implicit conv: T => String) {
+  def extractName(): String = conv(name)
+}
