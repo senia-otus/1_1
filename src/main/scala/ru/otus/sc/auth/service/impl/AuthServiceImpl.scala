@@ -1,15 +1,16 @@
 package ru.otus.sc.auth.service.impl
 
-import ru.otus.sc.auth.dao.AuthDao
+import ru.otus.sc.auth.data.dao.AuthDao
 import ru.otus.sc.auth.model.{AuthRequest, AuthResponse, RegisterRequest, RegisterResponse}
 import ru.otus.sc.auth.service.AuthService
+import ru.otus.sc.common.ImplicitHelpers
 
-class AuthServiceImpl(dao: AuthDao) extends AuthService {
+import scala.concurrent.Future
 
-  override def auth(request: AuthRequest): AuthResponse = dao.auth(request.login, request.password)
-    .map(_.value)
-    .map(AuthResponse)
-    .getOrElse(AuthResponse(""))
+class AuthServiceImpl(dao: AuthDao) extends AuthService with ImplicitHelpers {
+
+  override def auth(request: AuthRequest): Future[AuthResponse] = dao.auth(request.login, request.password)
+    .map(t => AuthResponse(t.value))
 
   override def register(request: RegisterRequest): RegisterResponse = dao.register(
       request.login,

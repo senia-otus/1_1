@@ -1,8 +1,8 @@
-package ru.otus.sc.user.dao.impl
+package ru.otus.sc.user.data.dao.impl
 
 import ru.otus.sc.common.{DB, ImplicitHelpers}
-import ru.otus.sc.user.dao.UserDao
-import ru.otus.sc.user.db.FakeUsersDb
+import ru.otus.sc.user.data.dao.UserDao
+import ru.otus.sc.user.data.db.FakeUsersDb
 import ru.otus.sc.user.model.User
 
 import scala.concurrent.Future

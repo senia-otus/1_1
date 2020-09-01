@@ -7,7 +7,7 @@ import ru.otus.sc.post.model.{Post, PostDetailsView, PostView}
 import ru.otus.sc.post.service.PostService
 import ru.otus.sc.tags.dao.TagDao
 import ru.otus.sc.tags.model.Tag
-import ru.otus.sc.user.dao.UserDao
+import ru.otus.sc.user.data.dao.UserDao
 
 import scala.util.Success
 

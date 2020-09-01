@@ -5,7 +5,7 @@ import java.time.OffsetDateTime
 import ru.otus.sc.common.DB
 import ru.otus.sc.post.exceptions.PostNotFoundException
 import ru.otus.sc.post.model.Post
-import ru.otus.sc.user.db.FakeUsersDb
+import ru.otus.sc.user.data.db.FakeUsersDb
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future

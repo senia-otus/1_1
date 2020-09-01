@@ -14,9 +14,14 @@ object ApplicationConfig {
       ),
       FlywayConfig(conf.getBoolean("flyway.enabled")),
       DatabaseConfig(
-        conf.getString("postgres.jdbc"),
-        conf.getString("postgres.password"),
-        conf.getString("postgres.user")
+        conf.getString(
+          "jdbc:postgresql://%s:%s/%s"
+            .format(conf.getString("db.properties.serverName"))
+            .format(conf.getString("db.properties.portNumber"))
+            .format(conf.getString("db.properties.databaseName"))
+        ),
+        conf.getString("db.properties.password"),
+        conf.getString("db.properties.user")
       )
     )
   }.get

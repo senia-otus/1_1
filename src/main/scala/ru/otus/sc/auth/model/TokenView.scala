@@ -2,4 +2,4 @@ package ru.otus.sc.auth.model
 
 import java.time.OffsetDateTime
 
-case class Token(value: String, expiredAt: OffsetDateTime)
+case class TokenView(value: String, expiredAt: OffsetDateTime)

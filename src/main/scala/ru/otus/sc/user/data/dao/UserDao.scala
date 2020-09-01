@@ -1,4 +1,4 @@
-package ru.otus.sc.user.dao
+package ru.otus.sc.user.data.dao
 
 import ru.otus.sc.user.model.User
 

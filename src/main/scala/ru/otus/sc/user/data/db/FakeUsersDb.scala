@@ -1,8 +1,8 @@
-package ru.otus.sc.user.db
+package ru.otus.sc.user.data.db
 
 import java.time.OffsetDateTime
 
-import ru.otus.sc.auth.model.Token
+import ru.otus.sc.auth.model.TokenView
 import ru.otus.sc.common.DB
 import ru.otus.sc.user.model.User
 
@@ -33,7 +33,7 @@ object FakeUsersDb extends DB[User, Long] {
         login = r.nextString(10),
         email = r.nextString(10),
         password = r.nextString(8),
-        token = Some(Token(r.nextString(128), OffsetDateTime.now().plusMonths(1))),
+        token = Some(TokenView(r.nextString(128), OffsetDateTime.now().plusMonths(1))),
         avatar = None
       )
     ))

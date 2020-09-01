@@ -65,6 +65,8 @@ object Main extends App with Logging {
 
 }
 
+
+
 object Migrator extends Logging {
 
   def migrate(config: DatabaseConfig) = {

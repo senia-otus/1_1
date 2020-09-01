@@ -1,6 +1,6 @@
 package ru.otus.sc
 
-import ru.otus.sc.auth.dao.impl.AuthDaoImpl
+import ru.otus.sc.auth.data.dao.impl.AuthDaoImpl
 import ru.otus.sc.auth.model.{AuthRequest, AuthResponse, RegisterRequest, RegisterResponse}
 import ru.otus.sc.auth.service.AuthService
 import ru.otus.sc.auth.service.impl.AuthServiceImpl
@@ -14,11 +14,13 @@ import ru.otus.sc.post.model.{PostDetailsView, PostView}
 import ru.otus.sc.post.service.PostService
 import ru.otus.sc.post.service.impl.PostServiceImpl
 import ru.otus.sc.tags.dao.impl.TagDaoImpl
-import ru.otus.sc.user.dao.impl.UserDaoImpl
+import ru.otus.sc.user.data.dao.impl.UserDaoImpl
+
+import scala.concurrent.Future
 
 trait Application {
   def greet(request: GreetRequest): GreetResponse
-  def auth(request: AuthRequest): AuthResponse
+  def auth(request: AuthRequest): Future[AuthResponse]
   def register(request: RegisterRequest): RegisterResponse
 
   def findAllPosts(userId: Long): Seq[PostView]
@@ -27,6 +29,7 @@ trait Application {
 }
 
 object Application {
+
   private class ApplicationImpl(
                          greeting: GreetingService,
                          authService: AuthService,
@@ -34,7 +37,7 @@ object Application {
                        ) extends Application {
 
     override def greet(request: GreetRequest): GreetResponse = greeting.greet(request)
-    override def auth(request: AuthRequest): AuthResponse = authService.auth(request)
+    override def auth(request: AuthRequest): Future[AuthResponse] = authService.auth(request)
     override def register(request: RegisterRequest): RegisterResponse = authService.register(request)
 
     override def findAllPosts(userId: Long): Seq[PostView] = postService.findAllPosts(userId)
