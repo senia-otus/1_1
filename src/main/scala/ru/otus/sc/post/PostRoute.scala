@@ -22,22 +22,23 @@ class PostRoute(implicit val sys: ActorSystem[Nothing]) {
     innerRoute(id)
   }
 
-  private def innerRoute(userId: Long): Route = get {
-    logRequest("GET-POSTS")
-    pathEndOrSingleSlash {
-      complete {
-        app.findAllPosts(userId)
-      }
-    }
-  } ~ pathPrefix("view" / LongNumber) { id =>
+  private def innerRoute(userId: Long): Route =
     get {
-      logRequest("GET-POSTS-VIEW")
+      logRequest("GET-POSTS")
       pathEndOrSingleSlash {
         complete {
-          app.findPost(id)
+          app.findAllPosts(userId)
+        }
+      }
+    } ~ pathPrefix("view" / LongNumber) { id =>
+      get {
+        logRequest("GET-POSTS-VIEW")
+        pathEndOrSingleSlash {
+          complete {
+            app.findPost(id)
+          }
         }
       }
     }
-  }
 
 }

@@ -1,9 +1,9 @@
 create table tokens
 (
     value       text            not null constraint tokens_value primary key,
-    expired_at  timestamptz     default date('2050-01-01 00:00:00.0000000+00'),
-    created_at  timestamptz     not null default now(),
-    updated_at  timestamptz     not null default now()
+    expired_at  timestamp       default date('2050-01-01 00:00:00'),
+    created_at  timestamp       not null default now(),
+    updated_at  timestamp       not null default now()
 );
 
 comment on table tokens is 'Токены, соли, хэши';
@@ -19,9 +19,9 @@ create table users
     password    text            not null,
     token       text            default null,
     avatar      varchar(255)    default null,
-    created_at  timestamptz     not null default now(),
-    updated_at  timestamptz     not null default now(),
-    deleted_at  timestamptz     default null
+    created_at  timestamp       not null default now(),
+    updated_at  timestamp       not null default now(),
+    deleted_at  timestamp       default null
 );
 
 create unique index on users(login) where deleted_at is null;
@@ -36,11 +36,11 @@ create table posts
     description     varchar(255)    default null,
     content         text            not null,
     image           varchar(255)    default null,
-    date            timestamptz     default now(),
+    date            timestamp       default now(),
     author_id       bigint          not null,
-    created_at      timestamptz     not null default now(),
-    updated_at      timestamptz     not null default now(),
-    deleted_at      timestamptz     default null
+    created_at      timestamp       not null default now(),
+    updated_at      timestamp       not null default now(),
+    deleted_at      timestamp       default null
 );
 
 ALTER TABLE posts ADD FOREIGN KEY ("author_id") REFERENCES "users" ("id");
@@ -52,8 +52,8 @@ create table comments
     content         text            not null,
     author_id       bigint          not null,
     post_id         bigint          not null,
-    created_at      timestamptz     not null default now(),
-    updated_at      timestamptz     not null default now()
+    created_at      timestamp       not null default now(),
+    updated_at      timestamp       not null default now()
 );
 
 ALTER TABLE comments ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");

@@ -6,25 +6,25 @@ object ApplicationConfig {
 
   private def initConfigurations(): Config = ConfigFactory.load()
 
-  def loadSettings(): (ApplicationConfig, FlywayConfig, DatabaseConfig) = Some(initConfigurations())
-    .map { conf => (
-      new ApplicationConfig(
-        conf.getString("app.deployment.host"),
-        conf.getInt("app.deployment.port")
-      ),
-      FlywayConfig(conf.getBoolean("flyway.enabled")),
-      DatabaseConfig(
-        conf.getString(
-          "jdbc:postgresql://%s:%s/%s"
-            .format(conf.getString("db.properties.serverName"))
-            .format(conf.getString("db.properties.portNumber"))
-            .format(conf.getString("db.properties.databaseName"))
+  def loadSettings(): (ApplicationConfig, FlywayConfig, DatabaseConfig) =
+    Some(initConfigurations()).map { conf =>
+      val dbServer = conf.getString("db.properties.serverName")
+      val dbPort   = conf.getString("db.properties.portNumber")
+      val dbName   = conf.getString("db.properties.databaseName")
+
+      (
+        new ApplicationConfig(
+          conf.getString("app.deployment.host"),
+          conf.getInt("app.deployment.port")
         ),
-        conf.getString("db.properties.password"),
-        conf.getString("db.properties.user")
+        FlywayConfig(conf.getBoolean("flyway.enabled")),
+        DatabaseConfig(
+          "jdbc:postgresql://" + dbServer + ":" + dbPort + "/" + dbName,
+          conf.getString("db.properties.password"),
+          conf.getString("db.properties.user")
+        )
       )
-    )
-  }.get
+    }.get
 
 }
 

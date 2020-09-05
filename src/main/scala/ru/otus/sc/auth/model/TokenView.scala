@@ -1,5 +1,5 @@
 package ru.otus.sc.auth.model
 
-import java.time.OffsetDateTime
+import java.sql.Timestamp
 
-case class TokenView(value: String, expiredAt: OffsetDateTime)
+case class TokenView(value: String, expiredAt: Timestamp)

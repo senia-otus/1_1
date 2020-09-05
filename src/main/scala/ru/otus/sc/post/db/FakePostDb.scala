@@ -20,7 +20,7 @@ object FakePostDb extends DB[Post, Long] {
   {
     for {
       users <- FakeUsersDb.all()
-    }  yield entities.addAll(
+    } yield entities.addAll(
       Seq(
         new Post(
           id = increment(),
@@ -52,17 +52,18 @@ object FakePostDb extends DB[Post, Long] {
 
   override def all(): Future[Seq[Post]] = entities.toList.future
 
-  override def read(id: Long): Future[Post] = entities.find(_.id == id) match {
-    case Some(v) => v.future()
-    case None => Future.failed(new PostNotFoundException)
-  }
+  override def read(id: Long): Future[Post] =
+    entities.find(_.id == id) match {
+      case Some(v) => v.future()
+      case None    => Future.failed(new PostNotFoundException)
+    }
 
   override def save(entity: Post): Future[Post] = {
     entities
       .find(_.id == entity.id) match {
-        case Some(v) => entities.insert(entities.indexOf(entity), v)
-        case None => entities.addOne(entity)
-      }
+      case Some(v) => entities.insert(entities.indexOf(entity), v)
+      case None    => entities.addOne(entity)
+    }
 
     entities
       .find(_.id == entity.id)
@@ -70,11 +71,11 @@ object FakePostDb extends DB[Post, Long] {
       .future
   }
 
-  override def delete(id: Long): Unit = entities.remove(
-    entities.indexOf(
-      entities.find(_.id == id).get
+  override def delete(id: Long): Unit =
+    entities.remove(
+      entities.indexOf(
+        entities.find(_.id == id).get
+      )
     )
-  )
-
 
 }

@@ -11,13 +11,12 @@ class TokenDaoImpl extends TokenDao with ImplicitHelpers {
 
   private val repo = TokenRepository
 
-  override def generateToken(str: String): Future[Token] = Some(Jwt.encode(str))
-    .map { salt =>
+  override def generateToken(str: String): Future[Token] =
+    Some(Jwt.encode(str)).map { salt =>
       for {
-        _ <- repo.upsert(Token(salt))
+        _     <- repo.upsert(Token(salt))
         token <- repo.findByToken(salt)
       } yield token
-    }
-    .get
+    }.get
 
 }

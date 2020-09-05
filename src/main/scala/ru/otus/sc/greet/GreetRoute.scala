@@ -20,17 +20,18 @@ final class GreetRoute(implicit val sys: ActorSystem[Nothing]) {
   // the ask is failed with a TimeoutException
   implicit val timeout: Timeout = 3.seconds
   val route: Route = path("greetings") {
-      innerRoute()
-    }
+    innerRoute()
+  }
 
-  private def innerRoute(): Route = post {
-    pathEndOrSingleSlash {
-      entity(as[GreetRequest]) { request =>
-        complete {
-          app.greet(request)
+  private def innerRoute(): Route =
+    post {
+      pathEndOrSingleSlash {
+        entity(as[GreetRequest]) { request =>
+          complete {
+            app.greet(request)
+          }
         }
       }
     }
-  }
 
 }

@@ -1,6 +1,5 @@
 package ru.otus.sc.post.service
 
-import ru.otus.sc.greet.model.{GreetRequest, GreetResponse}
 import ru.otus.sc.post.model.{PostDetailsView, PostView}
 
 trait PostService {

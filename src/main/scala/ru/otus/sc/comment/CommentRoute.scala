@@ -21,10 +21,11 @@ class CommentRoute(implicit val sys: ActorSystem[Nothing]) {
     innerRoute()
   }
 
-  private def innerRoute(): Route = get {
-    complete {
-      ""
+  private def innerRoute(): Route =
+    get {
+      complete {
+        ""
+      }
     }
-  }
 
 }

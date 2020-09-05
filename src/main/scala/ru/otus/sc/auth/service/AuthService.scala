@@ -7,6 +7,6 @@ import scala.concurrent.Future
 trait AuthService {
 
   def auth(request: AuthRequest): Future[AuthResponse]
-  def register(request: RegisterRequest): RegisterResponse
+  def register(request: RegisterRequest): Future[RegisterResponse]
 
 }

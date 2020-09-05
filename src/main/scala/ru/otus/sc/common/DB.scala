@@ -1,10 +1,9 @@
 package ru.otus.sc.common
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait DB[T, ID] extends ImplicitHelpers {
-
 
   val entities: ListBuffer[T]
 

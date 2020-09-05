@@ -1,3 +1,3 @@
 package ru.otus.sc.comment.model
 
-case class Comment()
+case class CommentView()

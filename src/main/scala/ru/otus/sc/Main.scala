@@ -2,14 +2,16 @@ package ru.otus.sc
 
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
+import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import org.apache.logging.log4j.scala.Logging
+import akka.http.scaladsl.server.directives.DebuggingDirectives
 import org.flywaydb.core.Flyway
 import ru.otus.sc.Migrator.migrate
 import ru.otus.sc.auth.AuthRoute
 import ru.otus.sc.comment.CommentRoute
+import ru.otus.sc.common.Logging
 import ru.otus.sc.config.{ApplicationConfig, DatabaseConfig}
 import ru.otus.sc.greet.GreetRoute
 import ru.otus.sc.post.PostRoute
@@ -27,7 +29,7 @@ object Main extends App with Logging {
   logger.debug(s"settings: $app, $flyway, $db")
   logger.info("Settings loaded successfully.")
 
-  if(flyway.enabled) {
+  if (flyway.enabled) {
     logger.info("Flyway starts migrations...")
     migrate(db)
     logger.info("Flyway migrations completed.")
@@ -46,32 +48,44 @@ object Main extends App with Logging {
     }
 
   logger.info("Assembling http server...")
-  val bindingFuture = Http().newServerAt(app.host, app.port).bind(
-    concat(
-      new GreetRoute().route,
-      new AuthRoute().route,
-      new PostRoute().route,
-      new UserRoute().route,
-      new TagsRoute().route,
-      new CommentRoute().route,
+  val bindingFuture = Http()
+    .newServerAt(app.host, app.port)
+    .bind(
+      concat(
+        DebuggingDirectives.logRequestResult("Client REST", Logging.InfoLevel)(
+          new GreetRoute().route
+        ),
+        DebuggingDirectives.logRequestResult("Client REST", Logging.InfoLevel)(
+          new AuthRoute().route
+        ),
+        DebuggingDirectives.logRequestResult("Client REST", Logging.InfoLevel)(
+          new PostRoute().route
+        ),
+        DebuggingDirectives.logRequestResult("Client REST", Logging.InfoLevel)(
+          new UserRoute().route
+        ),
+        DebuggingDirectives.logRequestResult("Client REST", Logging.InfoLevel)(
+          new TagsRoute().route
+        ),
+        DebuggingDirectives.logRequestResult("Client REST", Logging.InfoLevel)(
+          new CommentRoute().route
+        )
+      )
     )
-  )
 
   logger.info(s"Server online at http://${app.host}:${app.port}/\nPress RETURN to stop...")
   StdIn.readLine() // let it run until user presses return
   bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
+    .flatMap(_.unbind())                 // trigger unbinding from the port
     .onComplete(_ => system.terminate()) // and shutdown when done
 
 }
-
-
 
 object Migrator extends Logging {
 
   def migrate(config: DatabaseConfig) = {
     val (url, user, password) = DatabaseConfig.unapply(config).get
-    val flyway = Flyway.configure.dataSource(url, user, password).load
+    val flyway                = Flyway.configure.dataSource(url, user, password).load
     flyway.migrate()
   }
 

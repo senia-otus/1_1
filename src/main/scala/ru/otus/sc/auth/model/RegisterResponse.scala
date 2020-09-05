@@ -1,3 +1,5 @@
 package ru.otus.sc.auth.model
 
-case class RegisterResponse(token: String)
+import ru.otus.sc.common.CommonResponseMixin
+
+case class RegisterResponse(token: TokenView) extends CommonResponseMixin

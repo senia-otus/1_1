@@ -5,10 +5,11 @@ import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import ru.otus.sc.Application
 import ru.otus.sc.auth.model.{AuthRequest, RegisterRequest}
+import ru.otus.sc.common.Logging
 
 import scala.concurrent.duration.DurationInt
 
-class AuthRoute(implicit val sys: ActorSystem[Nothing]) {
+class AuthRoute(implicit val sys: ActorSystem[Nothing]) extends Logging {
 
   import akka.http.scaladsl.server.Directives._
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -23,7 +24,8 @@ class AuthRoute(implicit val sys: ActorSystem[Nothing]) {
     innerRoute()
   }
 
-  private def innerRoute(): Route = pathPrefix("in") {
+  private def innerRoute(): Route =
+    pathPrefix("in") {
       post {
         pathEndOrSingleSlash {
           entity(as[AuthRequest]) { request =>
@@ -33,7 +35,7 @@ class AuthRoute(implicit val sys: ActorSystem[Nothing]) {
           }
         }
       }
-  } ~ pathPrefix("up") {
+    } ~ pathPrefix("up") {
       post {
         pathEndOrSingleSlash {
           entity(as[RegisterRequest]) { request =>
@@ -43,6 +45,6 @@ class AuthRoute(implicit val sys: ActorSystem[Nothing]) {
           }
         }
       }
-  }
+    }
 
 }
