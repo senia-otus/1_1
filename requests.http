@@ -1,0 +1,31 @@
+POST http://localhost:9000/greetings
+Content-Type: application/json
+
+{
+  "name": "alex",
+  "isHuman": false
+}
+
+###
+
+POST http://localhost:9000/sign/in
+Content-Type: application/json
+
+{
+  "login": "test",
+  "password": "test"
+}
+
+###
+
+POST http://localhost:9000/sign/up
+Content-Type: application/json
+
+{
+  "login": "test",
+  "password": "test",
+  "name": "test",
+  "email": "test@test.com"
+}
+
+###

@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:11-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    networks:
+      - db
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - db
+    ports:
+      - 8000:8080
+
+networks:
+  db:
+    driver: bridge
+
+volumes:
+  pg_data:
+    driver: local
