@@ -1,0 +1,61 @@
+package ru.otus.sc.game.dao.impl
+
+import ru.otus.sc.game.dao.GameCredentialsDao
+import ru.otus.sc.game.model.{Player, PlayerStats, User}
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
+class GameCredentialsDaoImpl extends GameCredentialsDao {
+  private val users: mutable.ListBuffer[User] = new ListBuffer[User]
+  this.users += User("Guest", "guest", "guest")
+
+  /**
+    * Получить список всех пользователей
+    *
+    * @return список всех пользователей
+    */
+  override def allUsers(): List[User] =
+    this.users.toList
+
+  /**
+    * Получить пользователя по имени
+    *
+    * @param name искомое имя пользователя
+    * @return пользователь
+    */
+  override def user(name: String): Option[User] =
+    this.users.find(u => u.username == name)
+
+  /**
+    * Проверка занятого ника
+    *
+    * @param nick ник для проверки
+    * @return занят или не занят
+    */
+  override def nickBusy(nick: String): Boolean =
+    this.users.exists(u => u.nick == nick)
+
+  /**
+    * Проверка ввода занятых учетных данных
+    *
+    * @param check метод проверки
+    * @return учетные данные заняты или нет
+    */
+  override def credentialBusy(check: User => Boolean): Boolean =
+    this.users.exists(u => check(u))
+
+  /**
+    * Регистрация нового пользователя
+    *
+    * @param nick     ник игрока
+    * @param username логин входа
+    * @param password пароль входа
+    * @return созданный пользователь
+    */
+  override def registerUser(nick: String, username: String, password: String): Player = {
+    val user = User(nick, username, password)
+    this.users += user
+    Player(nick, PlayerStats.maxHealth)
+  }
+}

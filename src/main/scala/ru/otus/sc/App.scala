@@ -7,6 +7,9 @@ import ru.otus.sc.counts.service.impl.CountServiceImpl
 import ru.otus.sc.echo.model.{EchoRequest, EchoResponse}
 import ru.otus.sc.echo.service.EchoService
 import ru.otus.sc.echo.service.impl.EchoServiceImpl
+import ru.otus.sc.game.dao.impl.GameCredentialsDaoImpl
+import ru.otus.sc.game.service.GameService
+import ru.otus.sc.game.service.impl.GameServiceImpl
 import ru.otus.sc.greet.dao.impl.GreetingDaoImpl
 import ru.otus.sc.greet.model._
 import ru.otus.sc.greet.service.GreetingService
@@ -96,6 +99,8 @@ trait App {
     * @return response with flag isCalled
     */
   def lazyValueIsCaled(): LazyValCalledResponse
+
+  def game: GameService
 }
 
 object App {
@@ -104,7 +109,8 @@ object App {
       counts: CountService,
       echo: EchoService,
       store: StoreService,
-      lazyVal: LazyValService
+      lazyVal: LazyValService,
+      game: GameService
   ) extends App {
 
     /**
@@ -202,6 +208,8 @@ object App {
       counts.countUp("lazyValueIsCalled")
       lazyVal.getIsCalled
     }
+
+    override def game(): GameService = game
   }
 
   def apply(): App = {
@@ -216,7 +224,18 @@ object App {
     val echoService     = new EchoServiceImpl()
     val storeService    = new StoreServiceImpl(storeDao)
     val lazyValService  = new LazyValServiceImpl(lazyValDao)
+    // game service init
+    val gameDao     = new GameCredentialsDaoImpl()
+    val gameService = new GameServiceImpl(gameDao)
     // initilize App
-    new AppImpl(greetingService, countService, echoService, storeService, lazyValService)
+    new AppImpl(
+      greetingService,
+      countService,
+      echoService,
+      storeService,
+      lazyValService,
+      gameService
+    )
+
   }
 }

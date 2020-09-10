@@ -1,0 +1,130 @@
+@startuml
+actor Gamer as g
+participant GameS as gs
+participant GameProcD as gpd
+participant GameCredD as gcd
+participant GameStoreD as gsd
+
+== show game menu ==
+g -> gs: show menu
+alt entered game? contains [uuid]
+    gs -> gpd: check stage[uuid]
+    gpd -> gs: check stage ok[uuid]
+    gs -> g: show menu items ok[uuid][items]
+else not entered game. not contains [uuid]
+    gs -> g: show menu items ok[items]
+end
+
+== register new player ==
+g -> gs: register
+gs -> gcd: register[User]
+gcd -> gs: register ok[Player]
+gs -> g: register ok
+
+== enter game ==
+g -> gs: enter game[User]
+gs -> gcd: get player[User]
+gcd -> gs: get player ok[Player]
+gs -> gs: get [Player][uuid]
+gs -> gpd: connect player[Player][uuid]
+gs -> g: enter game ok[uuid]
+
+== try to load game ==
+g -> gs: any saved game[uuid]
+gs -> gsd: any saved game[uuid]
+gsd -> gs: no saved game[uuid]
+gs -> g: no saved game[uuid]
+
+== start new game ==
+g -> gs: start new game[uuid]
+gs -> gpd: generate new map[uuid]
+gpd -> gpd: place entities
+gpd -> gpd: place enemies
+gpd -> gpd: place player
+gpd -> gpd: save player and his map[uuid][map]
+gpd -> gs: generate new map ok [map]
+gs -> g: start new game ok[uuid]
+
+== save game ==
+g -> gs: save game[uuid]
+gs -> gpd: save game[uuid]
+gpd -> gsd: save player[uuid][player]
+gpd -> gsd: save player map[uuid][map]
+gpd -> gs: save game ok[uuid]
+gs -> g: save game ok[uuid]
+
+== show map, accessed when game end ==
+g -> gs: get full map[uuid]
+gs -> gpd: get map[uuid]
+gpd -> gs: get map ok[uuid][map]
+gs -> g: get my map ok[uuid][map]
+g -> g: map.show[map]
+
+== enemies near (1 step) ==
+g -> gs: get enemies near[uuid]
+gs -> gpd: get enemies near[uuid]
+gpd -> gpd: get player pos[player][pos]
+gpd -> gpd: get player map[player][map]
+gpd -> gpd: get enemies near[player][map]
+gpd -> gs: get enemies near ok[uuid][enemies]
+gs -> g: get enemies near ok[uuid][enemies]
+
+== movement ==
+g -> gs: move to[uuid][vector]
+gs -> gpd: move to[uuid][vector]
+gpd -> gpd: check busy pos[uuid][player_pos][vector]
+alt not busy pos case
+    gpd -> gpd: update player pos[player][new_pos]
+    gpd -> gs: move to ok[uuid]
+else pos contains chest or trap
+    alt found chest case
+        gpd -> gpd: check health player[player]
+        alt player don't have 100% health
+            gpd -> gpd: [chest] generate health restore
+            gpd -> gpd: restore player health by chest[player][chest]
+        end
+        gpd -> gpd: action [found trap or chest]
+        gpd -> gs: move to ok[uuid]
+    else found trap case
+        gpd -> gpd: [trap] generate damage
+        gpd -> gpd: attack player [player]
+        gpd -> gpd: check end game[player][end_game]
+        alt end game
+            gpd -> gs: move to fail[uuid][end_game]
+            gs -> g: move to fail[uuid][end_game]
+        else
+            gpd -> gpd: action [found trap or chest]
+            gpd -> gs: move to ok[uuid]
+        end
+    end
+else pos is busy
+    gpd -> gs: move to fail[uuid]
+end
+
+== attack enemies ==
+g -> gs: attack pos[uuid][vector]
+gs -> gpd: attack pos[uuid][vector]
+gpd -> gpd: check enemy[player_pos][vector]
+alt enemy detect case
+    gpd -> gpd: get enemy[enemy_pos]
+    gpd -> gpd: attack scene[player][enemy]
+    gpd -> gpd: update player stats[player]
+    gpd -> gpd: update player pos[player][enemy_pos]
+    gpd -> gpd: check end game[player][end_game]
+    alt end game
+        gpd -> gs: attack pos fail[uuid][end_game]
+        gs -> g: attack pos fail[uuid][end_game]
+    else
+        gpd -> gs: attack pos ok[uuid]
+        gs -> g: attack pos ok[uuid][player_changed_stats]
+    end
+else no enemy detect case
+    gpd -> gs: attack pos fail[uuid]
+    gs -> g: attack pos fail[uuid]
+end
+
+== end game by player dead ==
+... all actions in ...
+gs -> g: fail send[uuid][end_game]
+
+@enduml
