@@ -5,9 +5,8 @@ package ru.otus.sc.game.model
   *
   * @param nick никнейм, который отображается в игре
   * @param username имя пользователь
-  * @param password пароль
   */
-case class User(nick: String, username: String, password: String)
+case class User(nick: String, username: String)
 
 /**
   * Игрок

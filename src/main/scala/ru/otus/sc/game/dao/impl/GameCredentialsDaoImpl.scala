@@ -8,7 +8,7 @@ import scala.collection.mutable.ListBuffer
 
 class GameCredentialsDaoImpl extends GameCredentialsDao {
   private val users: mutable.ListBuffer[User] = new ListBuffer[User]
-  this.users += User("Guest", "guest", "guest")
+  this.users += User("Guest", "guest")
 
   /**
     * Получить список всех пользователей
@@ -50,12 +50,14 @@ class GameCredentialsDaoImpl extends GameCredentialsDao {
     *
     * @param nick     ник игрока
     * @param username логин входа
-    * @param password пароль входа
     * @return созданный пользователь
     */
-  override def registerUser(nick: String, username: String, password: String): Player = {
-    val user = User(nick, username, password)
-    this.users += user
-    Player(nick, PlayerStats.maxHealth)
+  override def registerUser(nick: String, username: String): Boolean = {
+    if (credentialBusy(u => u.nick == nick || u.username == username)) {
+      false
+    } else {
+      this.users += User(nick, username)
+      true
+    }
   }
 }

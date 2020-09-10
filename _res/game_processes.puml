@@ -5,7 +5,7 @@ participant GameProcD as gpd
 participant GameCredD as gcd
 participant GameStoreD as gsd
 
-== show game menu ==
+== [+] show game menu ==
 g -> gs: show menu
 alt entered game? contains [uuid]
     gs -> gpd: check stage[player]
@@ -15,13 +15,20 @@ else not entered game. not contains [uuid]
     gs -> g: show menu items ok[items]
 end
 
-== register new player ==
-g -> gs: register
-gs -> gcd: register[user]
-gcd -> gs: register ok[player]
-gs -> g: register ok
+== [+] register new player ==
+g -> gs: register[info]
+gs -> gcd: register[info]
+gcd -> gcd: check[info]
+alt credentials are not busy
+    gcd -> gcd: save user[user]
+    gcd -> gs: register ok[player]
+    gs -> g: register ok
+else
+    gcd -> gs: register fail
+    gs -> g: register fail
+end
 
-== enter game ==
+== [-] enter game ==
 g -> gs: enter game[user]
 gs -> gcd: get player[user]
 gcd -> gs: get player ok[player]
@@ -35,7 +42,7 @@ else player doesn't have saved game
 end
 gs -> g: enter game ok[uuid]
 
-== load game ==
+== [-] load game ==
 g -> gs: load saved game[uuid]
 gs -> gpd: load saved game[uuid]
 gpd -> gsd: get saved game[player]
@@ -50,7 +57,7 @@ else don't have saved game
     gs -> g: load saved game fail[uuid]
 end
 
-== start new game ==
+== [-] start new game ==
 g -> gs: start new game[uuid]
 gs -> gpd: generate new map[player]
 gpd -> gpd: place entities
@@ -60,7 +67,7 @@ gpd -> gpd: save player and his map[player][map]
 gpd -> gs: generate new map ok[player][map]
 gs -> g: start new game ok[uuid]
 
-== save game ==
+== [-] save game ==
 g -> gs: save game[uuid]
 gs -> gpd: save game[player]
 gpd -> gsd: save player[player]
@@ -68,14 +75,14 @@ gpd -> gsd: save player map[player][map]
 gpd -> gs: save game ok[player]
 gs -> g: save game ok[uuid]
 
-== show map, accessed when game end ==
+== [-] show map, accessed when game end ==
 g -> gs: get full map[uuid]
 gs -> gpd: get map[player]
 gpd -> gs: get map ok[player][map]
 gs -> g: get my map ok[uuid][map]
 g -> g: gamer execute map.show[map]
 
-== enemies near (1 step) ==
+== [-] show enemies ==
 g -> gs: get enemies near[uuid]
 gs -> gpd: get enemies near[player]
 gpd -> gpd: get player pos[player][pos]
@@ -84,7 +91,7 @@ gpd -> gpd: get enemies near[player][map]
 gpd -> gs: get enemies near ok[player][enemies]
 gs -> g: get enemies near ok[uuid][enemies]
 
-== movement ==
+== [-] movement ==
 g -> gs: move to[uuid][vector]
 gs -> gpd: move to[player][vector]
 gpd -> gpd: check busy pos[player][vector]
@@ -120,7 +127,7 @@ else pos is busy
     gs -> g: move to fail[uuid]
 end
 
-== attack enemies ==
+== [-] attack enemies ==
 g -> gs: attack pos[uuid][vector]
 gs -> gpd: attack pos[player][vector]
 gpd -> gpd: check enemy from player pos[player][vector]
@@ -142,7 +149,7 @@ else no enemy detect case
     gs -> g: attack pos fail[uuid]
 end
 
-== end game by player dead ==
+== [-] end game by player dead ==
 ... all actions in ...
 g -> gs: any action[uuid]
 gs -> g: fail send[uuid][end_game]

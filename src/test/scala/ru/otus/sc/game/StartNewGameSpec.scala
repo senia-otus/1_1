@@ -6,7 +6,7 @@ import ru.otus.sc.App
 import ru.otus.sc.game.service.GameRegisterRequest
 
 class StartNewGameSpec extends AnyWordSpec {
-  "At start game" should {
+  /*"At start game" should {
     "when get all users" when {
       "contains one [Guest] user" in {
         val app   = App()
@@ -34,5 +34,5 @@ class StartNewGameSpec extends AnyWordSpec {
         response.error shouldEqual ""
       }
     }
-  }
+  }*/
 }

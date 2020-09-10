@@ -7,7 +7,7 @@ import ru.otus.sc.counts.service.impl.CountServiceImpl
 import ru.otus.sc.echo.model.{EchoRequest, EchoResponse}
 import ru.otus.sc.echo.service.EchoService
 import ru.otus.sc.echo.service.impl.EchoServiceImpl
-import ru.otus.sc.game.dao.impl.GameCredentialsDaoImpl
+import ru.otus.sc.game.dao.impl.{GameCredentialsDaoImpl, GameProcessDaoImpl, GameStoreDaoImpl}
 import ru.otus.sc.game.service.GameService
 import ru.otus.sc.game.service.impl.GameServiceImpl
 import ru.otus.sc.greet.dao.impl.GreetingDaoImpl
@@ -110,7 +110,7 @@ object App {
       echo: EchoService,
       store: StoreService,
       lazyVal: LazyValService,
-      game: GameService
+      gameService: GameService
   ) extends App {
 
     /**
@@ -209,7 +209,7 @@ object App {
       lazyVal.getIsCalled
     }
 
-    override def game(): GameService = game
+    override def game: GameService = gameService
   }
 
   def apply(): App = {
@@ -225,9 +225,11 @@ object App {
     val storeService    = new StoreServiceImpl(storeDao)
     val lazyValService  = new LazyValServiceImpl(lazyValDao)
     // game service init
-    val gameDao     = new GameCredentialsDaoImpl()
-    val gameService = new GameServiceImpl(gameDao)
-    // initilize App
+    val gameCredDao  = new GameCredentialsDaoImpl()
+    val gameStoreDao = new GameStoreDaoImpl()
+    val gameProcDao  = new GameProcessDaoImpl(gameStoreDao)
+    val gameService  = new GameServiceImpl(gameProcDao, gameCredDao, gameStoreDao)
+    // initialize App
     new AppImpl(
       greetingService,
       countService,
