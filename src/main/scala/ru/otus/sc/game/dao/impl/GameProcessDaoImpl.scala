@@ -55,4 +55,15 @@ class GameProcessDaoImpl(store: GameStoreDao) extends GameProcessDao {
       player
     }
   }
+
+  /**
+    * Игрок заходит в игру.
+    * Надо сделать поиск сохранения и предложить пользователю выбор
+    *
+    * @param player игрок
+    * @return
+    */
+  override def enterGame(player: Player): Position = {
+    Position(0, 0)
+  }
 }
