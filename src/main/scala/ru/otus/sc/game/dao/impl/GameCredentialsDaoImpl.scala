@@ -60,4 +60,19 @@ class GameCredentialsDaoImpl extends GameCredentialsDao {
       true
     }
   }
+
+  /**
+    * Получение игрока по идентификационным данным пользователя
+    *
+    * @param username имя пользователя
+    * @return игрок, если существует
+    */
+  override def player(username: String): Option[Player] = {
+    val user = this.users.find(u => u.username == username)
+    if (user.isDefined) {
+      Some(Player(user.get.nick, PlayerStats.maxHealth))
+    } else {
+      None
+    }
+  }
 }

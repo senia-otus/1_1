@@ -1,13 +1,27 @@
 package ru.otus.sc.game.dao.impl
 
 import ru.otus.sc.game.dao.GameStoreDao
-import ru.otus.sc.game.model.{Entity, Player, PlayerStore, Position}
+import ru.otus.sc.game.model._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 class GameStoreDaoImpl extends GameStoreDao {
-  private val store = new ListBuffer[PlayerStore]
+  private val store                                              = new ListBuffer[PlayerStore]
+  private val saves: mutable.Map[String, PlayerCurrentGameState] = mutable.Map.empty
+
+  /**
+    * Полное сохранение
+    *
+    * @param player игрок
+    * @param map    карта игрока
+    * @param pos    последняя позиция
+    * @return успех или не успех
+    */
+  override def save(player: Player, map: Map[Position, Entity], pos: Position): Boolean = {
+    this.saves(player.nick) = PlayerCurrentGameState(player, GameProcessState.NONE, map, pos)
+    true
+  }
 
   /**
     * Сохраняем игрока и его последнюю позицию на карте
@@ -17,47 +31,54 @@ class GameStoreDaoImpl extends GameStoreDao {
     * @return удалось или не удалось сохранить
     */
   override def savePlayer(player: Player, pos: Position): Boolean = {
-    val storeCell = PlayerStore(player, pos)
-
-    try {
-      this.store -= storeCell
-      this.store += storeCell
-      true
-    } catch {
-      case ex: Exception => {
-        println(s"Возникла ошибка: $ex")
-        ex.printStackTrace()
-        false
-      }
+    if (this.saves.contains(player.nick)) {
+      this.saves(player.nick) = this.saves(player.nick).copy(player = player, pos = pos)
+    } else {
+      this.saves(player.nick) =
+        PlayerCurrentGameState(player, GameProcessState.NONE, Map.empty[Position, Entity], pos)
     }
+    true
   }
 
   /**
     * Загружаем данные игрока
     *
     * @param player игрок
-    * @return хранимая информация по игроку
+    * @return сохраненный игрок и его позиция или ничего
     */
-  override def loadPlayer(player: Player): Option[PlayerStore] = {
-    this.store.find(ps => ps.player.nick == player.nick)
+  override def loadPlayer(player: Player): Option[(Player, Position)] = {
+    if (this.saves.contains(player.nick))
+      Some((this.saves(player.nick).player, this.saves(player.nick).pos))
+    else
+      None
   }
 
   /**
     * Сохраняем карту
     *
-    * @param map карта
+    * @param player игрок
+    * @param map    карта
     * @return удалось или не удалось
     */
-  override def saveMap(map: Map[Position, Entity]): Boolean = {
+  override def saveMap(player: Player, map: Map[Position, Entity]): Boolean = {
+    if (this.saves.contains(player.nick)) {
+      this.saves(player.nick) = this.saves(player.nick).copy(map = map)
+    } else {
+      this.saves(player.nick) =
+        PlayerCurrentGameState(player, GameProcessState.NONE, map, Position(0, 0))
+    }
     true
   }
 
   /**
     * Загружаем карту
     *
-    * @return карта
+    * @param player игрок
+    * @return сохраненная карта игрока или ничего
     */
-  override def loadMap(): Map[Position, Entity] = {
-    Map.empty
-  }
+  override def loadMap(player: Player): Option[Map[Position, Entity]] =
+    if (this.saves.contains(player.nick))
+      Some(this.saves(player.nick).map)
+    else
+      None
 }

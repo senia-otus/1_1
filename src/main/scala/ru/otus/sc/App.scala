@@ -228,7 +228,7 @@ object App {
     val gameCredDao  = new GameCredentialsDaoImpl()
     val gameStoreDao = new GameStoreDaoImpl()
     val gameProcDao  = new GameProcessDaoImpl(gameStoreDao)
-    val gameService  = new GameServiceImpl(gameProcDao, gameCredDao, gameStoreDao)
+    val gameService  = new GameServiceImpl(gameProcDao, gameCredDao)
     // initialize App
     new AppImpl(
       greetingService,

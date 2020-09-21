@@ -154,4 +154,7 @@ end
 g -> gs: any action[uuid]
 gs -> g: fail send[uuid][end_game]
 
+== [-] quit game map ==
+g -> gs: quit game map
+
 @enduml

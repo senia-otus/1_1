@@ -38,9 +38,17 @@ trait GameCredentialsDao {
   /**
     * Регистрация нового пользователя
     *
-    * @param nick ник игрока
+    * @param nick     ник игрока
     * @param username логин входа
     * @return успех или не успех
     */
   def registerUser(nick: String, username: String): Boolean
+
+  /**
+    * Получение игрока по идентификационным данным пользователя
+    *
+    * @param username имя пользователя
+    * @return игрок, если существует
+    */
+  def player(username: String): Option[Player]
 }

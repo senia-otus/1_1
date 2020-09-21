@@ -37,31 +37,48 @@ object GameMap {
 }
 
 case class GameMap(entities: Map[Position, Entity]) {
-  def show(): Unit = {
+  def present(size: Int = GameStats.worldSize): String = {
+    val buff = new StringBuilder("")
+
     for {
-      i <- 0 until GameMap.size
-      j <- 0 until GameMap.size
+      j <- 0 until size
+      i <- 0 until size
     } {
       val pos = Position(i, j)
-      print(" ")
+      buff ++= " "
       if (entities.contains(pos))
-        print(entities(pos).symbol)
+        buff ++= entities(pos).symbol
       else
-        print("_")
-      print(" ")
+        buff ++= "_"
+      buff ++= " "
 
-      if (j == GameMap.size - 1)
-        println()
+      if (i == size - 1)
+        buff ++= "\n"
     }
+    buff.toString()
+  }
+
+  def show(): Unit = {
+    println(this.present())
+  }
+
+  def place(add: Map[Position, Entity] => Map[Position, Entity]): GameMap = {
+    GameMap(add(this.entities))
   }
 }
 
 trait Entity {
   def symbol: String = " "
+
+  def action: Action
 }
 case class Chest() extends Entity {
-  override def symbol: String = "H"
+  override def symbol: String = "C"
+
+  override def action: Action = ActionRestoreHealth(PlayerStats.randHealth() / 8)
 }
 case class Trap() extends Entity {
-  override def symbol: String = "X"
+  override def symbol: String = "T"
+
+  override def action: Action = ActionDamageFromTrap(PlayerStats.randAttack() / 2)
 }

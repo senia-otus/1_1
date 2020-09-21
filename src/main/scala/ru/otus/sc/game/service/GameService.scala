@@ -1,11 +1,12 @@
 package ru.otus.sc.game.service
 
+import ru.otus.sc.game.model.Direction
+
 trait GameService {
 
   /**
     * Показать игровое меню
     * Игровое меню показывается для каждой стадии игры свое.
-    * Например,
     * Незарегистрированный или не вошедший в игру игрок:
     * - Регистрация
     * - Войти
@@ -35,10 +36,18 @@ trait GameService {
     * @param request информация для регистрации
     * @return Ответ об успешности или нет
     */
-  def registerNewPlayer(request: GameRegisterRequest): GameRegisterResponse
+  def signUp(request: GameSignUpRequest): GameSignUpResponse
 
   /**
     * Вход в игру
+    *
+    * @param request информация для входа в игру
+    * @return Ответ об успешности или нет
+    */
+  def signIn(request: GameSignInRequest): GameSignInResponse
+
+  /**
+    * Вход в игровую карту
     *
     * @param request запрос логин для входа
     * @return успех или не успех процесса с ошибкой
@@ -62,7 +71,7 @@ trait GameService {
     * @param request запрос на новую игру
     * @return успех или не успех процесса с ошибкой
     */
-  def startNewGame(request: StartNewGameRequest): StartNewGameResponse
+  def newGame(request: NewGameRequest): NewGameResponse
 
   /**
     * Сохранение игры
@@ -118,41 +127,81 @@ trait GameService {
   def attackPos(request: AttackPosRequest): AttackPosResponse
 
   /**
+    * Выход из игровой карты
+    *
+    * @param request запрос на выход из игровой карты
+    */
+  def quitGameMap(request: QuitGameMapRequest): QuitGameMapResponse
+
+  /**
     * Выход из игры
     *
     * @param request запрос на выход из игры
     */
   def quitGame(request: QuitGameRequest): Unit
+
+  /**
+    * Показать текущее игровое состояние игрока
+    *
+    * @return
+    */
+  def showGameState(request: GameCurrentStateRequest): GameCurrentStateResponse
 }
 
 case class GameMenuRequest(id: String = "")
+
 case class GameMenuResponse(availableMenuItems: List[String])
 
-case class GameRegisterRequest(nick: String, user: String)
-case class GameRegisterResponse(success: Boolean, error: String = "")
+case class GameSignUpRequest(nick: String, user: String)
 
-case class EnterGameRequest(user: String)
-case class EnterGameResponse(success: Boolean, error: String = "")
+case class GameSignUpResponse(success: Boolean, data: String = "")
 
-case class LoadGameRequest()
-case class LoadGameResponse()
+case class GameSignInRequest(user: String)
 
-case class StartNewGameRequest(nick: String)
-case class StartNewGameResponse()
+case class GameSignInResponse(success: Boolean, data: String = "")
 
-case class SaveGameRequest()
-case class SaveGameResponse()
+case class EnterGameRequest(uuid: String)
 
-case class ShowMapRequest()
-case class ShowMapResponse()
+case class EnterGameResponse(success: Boolean, data: String = "")
 
-case class ShowEnemiesRequest()
-case class ShowEnemiesResponse()
+case class LoadGameRequest(uuid: String)
 
-case class MoveRequest()
-case class MoveResponse()
+case class LoadGameResponse(success: Boolean, data: String = "")
 
-case class AttackPosRequest()
-case class AttackPosResponse()
+case class NewGameRequest(uuid: String)
+
+case class NewGameResponse(success: Boolean, data: String = "")
+
+case class SaveGameRequest(uuid: String)
+
+case class SaveGameResponse(success: Boolean, data: String = "")
+
+case class ShowMapRequest(uuid: String)
+
+case class ShowMapResponse(success: Boolean, data: String = "") {
+  def show(): Unit = println(this.data)
+}
+
+case class ShowEnemiesRequest(uuid: String)
+
+case class ShowEnemiesResponse(success: Boolean, data: String = "") {
+  def show(): Unit = println(this.data)
+}
+
+case class MoveRequest(uuid: String, direction: Direction)
+
+case class MoveResponse(success: Boolean, data: String = "")
+
+case class AttackPosRequest(uuid: String, direction: Direction)
+
+case class AttackPosResponse(success: Boolean, data: String = "")
+
+case class QuitGameMapRequest(uuid: String)
+
+case class QuitGameMapResponse(success: Boolean, data: String = "")
 
 case class QuitGameRequest()
+
+case class GameCurrentStateRequest(uuid: String)
+
+case class GameCurrentStateResponse(data: String)
