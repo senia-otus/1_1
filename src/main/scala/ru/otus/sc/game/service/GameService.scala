@@ -1,6 +1,6 @@
 package ru.otus.sc.game.service
 
-import ru.otus.sc.game.model.Direction
+import ru.otus.sc.game.model._
 
 trait GameService {
 
@@ -28,7 +28,7 @@ trait GameService {
     * @param request запрос с айдишником для залогинненного игрока
     * @return список доступных операций
     */
-  def showGameMenu(request: GameMenuRequest): GameMenuResponse
+  def showGameMenu(request: ShowGameMenuRequest): ShowGameMenuResponse
 
   /**
     * Регистрация нового игрока
@@ -36,7 +36,7 @@ trait GameService {
     * @param request информация для регистрации
     * @return Ответ об успешности или нет
     */
-  def signUp(request: GameSignUpRequest): GameSignUpResponse
+  def signUp(request: SignUpRequest): SignUpResponse
 
   /**
     * Вход в игру
@@ -44,7 +44,7 @@ trait GameService {
     * @param request информация для входа в игру
     * @return Ответ об успешности или нет
     */
-  def signIn(request: GameSignInRequest): GameSignInResponse
+  def signIn(request: SignInRequest): SignInResponse
 
   /**
     * Вход в игровую карту
@@ -52,7 +52,7 @@ trait GameService {
     * @param request запрос логин для входа
     * @return успех или не успех процесса с ошибкой
     */
-  def enterGame(request: EnterGameRequest): EnterGameResponse
+  def enterGame(request: EnterGameMapRequest): EnterGameMapResponse
 
   /**
     * Загрузка игры
@@ -124,7 +124,7 @@ trait GameService {
     * @param request запрос на атаку клетки
     * @return успех или не успех процесса с ошибкой
     */
-  def attackPos(request: AttackPosRequest): AttackPosResponse
+  def attackPos(request: AttackDirectionRequest): AttackDirectionResponse
 
   /**
     * Выход из игровой карты
@@ -147,61 +147,3 @@ trait GameService {
     */
   def showGameState(request: GameCurrentStateRequest): GameCurrentStateResponse
 }
-
-case class GameMenuRequest(id: String = "")
-
-case class GameMenuResponse(availableMenuItems: List[String])
-
-case class GameSignUpRequest(nick: String, user: String)
-
-case class GameSignUpResponse(success: Boolean, data: String = "")
-
-case class GameSignInRequest(user: String)
-
-case class GameSignInResponse(success: Boolean, data: String = "")
-
-case class EnterGameRequest(uuid: String)
-
-case class EnterGameResponse(success: Boolean, data: String = "")
-
-case class LoadGameRequest(uuid: String)
-
-case class LoadGameResponse(success: Boolean, data: String = "")
-
-case class NewGameRequest(uuid: String)
-
-case class NewGameResponse(success: Boolean, data: String = "")
-
-case class SaveGameRequest(uuid: String)
-
-case class SaveGameResponse(success: Boolean, data: String = "")
-
-case class ShowMapRequest(uuid: String)
-
-case class ShowMapResponse(success: Boolean, data: String = "") {
-  def show(): Unit = println(this.data)
-}
-
-case class ShowEnemiesRequest(uuid: String)
-
-case class ShowEnemiesResponse(success: Boolean, data: String = "") {
-  def show(): Unit = println(this.data)
-}
-
-case class MoveRequest(uuid: String, direction: Direction)
-
-case class MoveResponse(success: Boolean, data: String = "")
-
-case class AttackPosRequest(uuid: String, direction: Direction)
-
-case class AttackPosResponse(success: Boolean, data: String = "")
-
-case class QuitGameMapRequest(uuid: String)
-
-case class QuitGameMapResponse(success: Boolean, data: String = "")
-
-case class QuitGameRequest()
-
-case class GameCurrentStateRequest(uuid: String)
-
-case class GameCurrentStateResponse(data: String)

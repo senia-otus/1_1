@@ -4,7 +4,7 @@ import java.util.UUID
 
 import ru.otus.sc.game.dao.{GameCredentialsDao, GameProcessDao}
 import ru.otus.sc.game.model.GameProcessState._
-import ru.otus.sc.game.model.Player
+import ru.otus.sc.game.model._
 import ru.otus.sc.game.service._
 
 import scala.collection.mutable
@@ -39,9 +39,9 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
     * @param request запрос с айдишником для залогинненного игрока
     * @return список доступных операций
     */
-  override def showGameMenu(request: GameMenuRequest): GameMenuResponse = {
+  override def showGameMenu(request: ShowGameMenuRequest): ShowGameMenuResponse = {
     if (request.id.isEmpty) {
-      GameMenuResponse(
+      ShowGameMenuResponse(
         List("signUp", "signIn", "quitGame")
       )
     } else {
@@ -50,12 +50,12 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
           this.gpd.gamerState(player) match {
             // состояние игрока неидентифицировано
             case NONE =>
-              GameMenuResponse(
+              ShowGameMenuResponse(
                 List("signUp", "signIn", "quitGame")
               )
             // главное меню игры
             case MAIN_MENU =>
-              GameMenuResponse(
+              ShowGameMenuResponse(
                 List(
                   "enterGame",
                   "loadGame",
@@ -65,7 +65,7 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
               )
             // игрок в игровом меню или на игровой карте
             case GAME =>
-              GameMenuResponse(
+              ShowGameMenuResponse(
                 List(
                   "showEnemies",
                   "move",
@@ -77,13 +77,13 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
               )
             // игрок проиграл или выиграл
             case LOSE | WIN =>
-              GameMenuResponse(
+              ShowGameMenuResponse(
                 List("newGame", "showMap", "quitGame")
               )
           }
         // если игрока нет среди залогиненных
         case None =>
-          GameMenuResponse(
+          ShowGameMenuResponse(
             List("signUp", "signIn", "quitGame")
           )
       }
@@ -96,11 +96,11 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
     * @param request информация для регистрации
     * @return Ответ об успешности или нет
     */
-  override def signUp(request: GameSignUpRequest): GameSignUpResponse = {
+  override def signUp(request: SignUpRequest): SignUpResponse = {
     if (this.gcd.registerUser(request.nick, request.user))
-      GameSignUpResponse(success = true)
+      SignUpResponse(success = true)
     else
-      GameSignUpResponse(success = false, "Nick or username are already busy")
+      SignUpResponse(success = false, "Nick or username are already busy")
   }
 
   /**
@@ -109,20 +109,20 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
     * @param request информация для входа в игру
     * @return Ответ об успешности или нет
     */
-  override def signIn(request: GameSignInRequest): GameSignInResponse = {
+  override def signIn(request: SignInRequest): SignInResponse = {
     this.gcd.player(request.user) match {
       case Some(player) =>
         this.connected.find(u => u._2 == player) match {
           case Some((uuid, _)) =>
-            GameSignInResponse(success = true, uuid)
+            SignInResponse(success = true, uuid)
           case None =>
             val uuid = UUID.randomUUID().toString
             this.connected.put(uuid, player)
             this.gpd.signIn(player)
-            GameSignInResponse(success = true, uuid)
+            SignInResponse(success = true, uuid)
         }
       case None =>
-        GameSignInResponse(success = false, "Player with username doesn't exists")
+        SignInResponse(success = false, "Player with username doesn't exists")
     }
   }
 
@@ -132,18 +132,18 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
     * @param request запрос логин для входа
     * @return успех или не успех процесса с ошибкой
     */
-  override def enterGame(request: EnterGameRequest): EnterGameResponse = {
+  override def enterGame(request: EnterGameMapRequest): EnterGameMapResponse = {
     this.connected.get(request.uuid) match {
       case Some(player) =>
         if (this.gpd.gamerState(player) == MAIN_MENU) {
           this.onMap += player.nick
           this.gpd.enterMap(player)
-          EnterGameResponse(success = true)
+          EnterGameMapResponse(success = true)
         } else {
-          EnterGameResponse(success = false, "Player already in game")
+          EnterGameMapResponse(success = false, "Player already in game")
         }
       case None =>
-        EnterGameResponse(
+        EnterGameMapResponse(
           success = false,
           "Need to be logged in before send this request [use 'signIn']"
         )
@@ -356,23 +356,23 @@ class GameServiceImpl(gpd: GameProcessDao, gcd: GameCredentialsDao) extends Game
     * @param request запрос на атаку клетки
     * @return успех или не успех процесса с ошибкой
     */
-  override def attackPos(request: AttackPosRequest): AttackPosResponse = {
+  override def attackPos(request: AttackDirectionRequest): AttackDirectionResponse = {
     this.connected.get(request.uuid) match {
       case Some(player) =>
         if (this.gpd.gamerState(player) == GAME) {
-          AttackPosResponse(
+          AttackDirectionResponse(
             success = true,
             data = this.gpd.attackDirection(player, request.direction)
           )
         } else {
-          AttackPosResponse(
+          AttackDirectionResponse(
             success = false,
             data =
               "Wrong request. On this player game state you can't attack [available commands 'showGameMenu']"
           )
         }
       case None =>
-        AttackPosResponse(
+        AttackDirectionResponse(
           success = false,
           data = "Need to be logged in before send this request [use 'signIn']"
         )

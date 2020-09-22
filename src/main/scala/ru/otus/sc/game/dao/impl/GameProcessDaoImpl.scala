@@ -13,7 +13,7 @@ class GameProcessDaoImpl(gsd: GameStoreDao) extends GameProcessDao {
   private val rand                                                   = new Random(size)
 
   @scala.annotation.tailrec
-  private def freeCell(map: Map[Position, Entity]): Position = {
+  private def freeCell(map: Map[Position, GameEntity]): Position = {
     val pos = Position(rand.nextInt(size), rand.nextInt(size))
     if (!map.contains(pos))
       pos

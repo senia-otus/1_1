@@ -4,10 +4,11 @@ import ru.otus.sc.game.dao.GameStoreDao
 import ru.otus.sc.game.model._
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
+/**
+  * Сохранение игровых данных
+  */
 class GameStoreDaoImpl extends GameStoreDao {
-  private val store                                              = new ListBuffer[PlayerStore]
   private val saves: mutable.Map[String, PlayerCurrentGameState] = mutable.Map.empty
 
   /**
@@ -18,7 +19,7 @@ class GameStoreDaoImpl extends GameStoreDao {
     * @param pos    последняя позиция
     * @return успех или не успех
     */
-  override def save(player: Player, map: Map[Position, Entity], pos: Position): Boolean = {
+  override def save(player: Player, map: Map[Position, GameEntity], pos: Position): Boolean = {
     this.saves(player.nick) = PlayerCurrentGameState(player, GameProcessState.NONE, map, pos)
     true
   }
@@ -35,7 +36,7 @@ class GameStoreDaoImpl extends GameStoreDao {
       this.saves(player.nick) = this.saves(player.nick).copy(player = player, pos = pos)
     } else {
       this.saves(player.nick) =
-        PlayerCurrentGameState(player, GameProcessState.NONE, Map.empty[Position, Entity], pos)
+        PlayerCurrentGameState(player, GameProcessState.NONE, Map.empty[Position, GameEntity], pos)
     }
     true
   }
@@ -60,7 +61,7 @@ class GameStoreDaoImpl extends GameStoreDao {
     * @param map    карта
     * @return удалось или не удалось
     */
-  override def saveMap(player: Player, map: Map[Position, Entity]): Boolean = {
+  override def saveMap(player: Player, map: Map[Position, GameEntity]): Boolean = {
     if (this.saves.contains(player.nick)) {
       this.saves(player.nick) = this.saves(player.nick).copy(map = map)
     } else {
@@ -76,7 +77,7 @@ class GameStoreDaoImpl extends GameStoreDao {
     * @param player игрок
     * @return сохраненная карта игрока или ничего
     */
-  override def loadMap(player: Player): Option[Map[Position, Entity]] =
+  override def loadMap(player: Player): Option[Map[Position, GameEntity]] =
     if (this.saves.contains(player.nick))
       Some(this.saves(player.nick).map)
     else

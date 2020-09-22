@@ -1,6 +1,6 @@
 package ru.otus.sc.game.dao
 
-import ru.otus.sc.game.model.{Entity, Player, Position}
+import ru.otus.sc.game.model.{GameEntity, Player, Position}
 
 trait GameStoreDao {
 
@@ -12,7 +12,7 @@ trait GameStoreDao {
     * @param pos    последняя позиция
     * @return успех или не успех
     */
-  def save(player: Player, map: Map[Position, Entity], pos: Position): Boolean
+  def save(player: Player, map: Map[Position, GameEntity], pos: Position): Boolean
 
   /**
     * Сохраняем игрока и его последнюю позицию на карте
@@ -38,7 +38,7 @@ trait GameStoreDao {
     * @param map    карта
     * @return удалось или не удалось
     */
-  def saveMap(player: Player, map: Map[Position, Entity]): Boolean
+  def saveMap(player: Player, map: Map[Position, GameEntity]): Boolean
 
   /**
     * Загружаем карту
@@ -46,5 +46,5 @@ trait GameStoreDao {
     * @param player игрок
     * @return карта
     */
-  def loadMap(player: Player): Option[Map[Position, Entity]]
+  def loadMap(player: Player): Option[Map[Position, GameEntity]]
 }
