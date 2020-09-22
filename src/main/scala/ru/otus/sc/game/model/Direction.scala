@@ -50,7 +50,7 @@ object Direction {
     direction.split("_").toList match {
       case sX :: sY :: Nil =>
         Direction(sX, sY)
-      case _ :: _ =>
+      case _ =>
         Direction(0, 0)
     }
   }

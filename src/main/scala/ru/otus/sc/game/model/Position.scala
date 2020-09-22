@@ -8,11 +8,9 @@ package ru.otus.sc.game.model
   */
 case class Position(x: Int, y: Int) {
   def direct(x: Int, y: Int, maxX: Int, maxY: Int): Position = {
-    val xN = this.x + x
-    val yN = this.y + y
     Position(
-      if (xN > maxX) maxX else if (xN < 0) 0 else xN,
-      if (yN > maxY) maxY else if (yN < 0) 0 else yN
+      Math.max(0, Math.min(this.x + x, maxX - 1)),
+      Math.max(0, Math.min(this.y + y, maxY - 1))
     )
   }
 
