@@ -1,4 +1,7 @@
 package ru.otus.sc.greet.model
 
-trait Guest
-object Guest extends Guest
+import derevo.circe.codec
+import derevo.derive
+
+@derive(codec)
+case class Guest()
