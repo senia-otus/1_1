@@ -18,6 +18,10 @@ import ru.otus.sc.greet.{ Config, GreetingClient, GreetingConfig, GreetingRoutes
 
 import scala.concurrent.ExecutionContext.global
 
+/**
+ * Абстрактный тест на базе фреймворка distage-testkit: позволяет писать тесты в функциональном стиле
+ * с использованием dependency injection и мемоизацией ресурсов для переиспользования между тестами.
+ */
 abstract class Test extends Spec1[IO] with AssertCIO with Matchers {
   override def config =
     super.config.copy(
