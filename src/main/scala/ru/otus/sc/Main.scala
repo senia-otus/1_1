@@ -8,7 +8,7 @@ import pureconfig.{ ConfigSource, _ }
 import pureconfig.generic.auto._
 import ru.otus.sc.greet.dao.{ GreetingDao, UserDao }
 import ru.otus.sc.greet.service.{ BotService, GreetingService, UserService }
-import ru.otus.sc.greet.{ Config, Routes }
+import ru.otus.sc.greet.{ Config, GreetingRoutes }
 
 import scala.concurrent.ExecutionContext.global
 
@@ -20,7 +20,7 @@ object Main extends IOApp {
   val userService     = UserService(userDao)
   val greetingService = GreetingService(greetingDao, userService)
 
-  val httpRoutes = Router[IO]("/" -> Routes(botService, userService, greetingService)).orNotFound
+  val httpRoutes = Router[IO]("/" -> GreetingRoutes(botService, userService, greetingService)).orNotFound
 
   override def run(args: List[String]): IO[ExitCode] = {
     BlazeServerBuilder[IO](global)

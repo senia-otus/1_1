@@ -10,7 +10,7 @@ import ru.otus.sc.greet.model.{ Bot, Greeting, GreetingMethod, Id, InvalidUserEr
 import ru.otus.sc.greet.model.GreetingMethod.{ BotGreetingMethod, GuestGreetingMethod, UserGreetingMethod }
 import ru.otus.sc.greet.service.{ BotService, GreetingService, UserService }
 
-object Routes {
+object GreetingRoutes {
   def apply(botService: BotService[IO], userService: UserService, greetingService: GreetingService): HttpRoutes[IO] = {
     val dsl = new Http4sDsl[IO] {}
     import dsl._

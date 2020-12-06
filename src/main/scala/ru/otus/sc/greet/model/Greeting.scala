@@ -2,13 +2,13 @@ package ru.otus.sc.greet.model
 
 import java.time.LocalDateTime
 
+import derevo.circe.codec
 import derevo.derive
-import derevo.circe.encoder
 import enumeratum.{ Enum, EnumEntry }
 import io.circe.Decoder.decodeString
 import io.circe.Encoder.encodeString
 import io.circe.{ Decoder, Encoder }
-import ru.otus.sc.greet.model.GreetingMethod.{ MapConstraint }
+import ru.otus.sc.greet.model.GreetingMethod.MapConstraint
 import shapeless.HMap
 
 import scala.collection.concurrent.TrieMap
@@ -21,7 +21,7 @@ import scala.collection.concurrent.TrieMap
  * @param text           текст приветствия
  * @param time           время приветствия
  */
-@derive(encoder)
+@derive(codec)
 case class Greeting[A](
   id: Option[Id[Greeting[A]]],
   greetedId: Option[Id[A]],
@@ -34,6 +34,7 @@ case class Greeting[A](
  * Метод приветствия. Попытался сделать его тайпклассом для [[GreetingDao]].
  */
 sealed trait GreetingMethod[A] extends EnumEntry {
+
   /**
    * Возвращает идентификатор приветствуемой сущности, если её можно идентифицировать (например, пользователь)
    */
@@ -51,6 +52,8 @@ sealed trait GreetingMethod[A] extends EnumEntry {
 }
 
 object GreetingMethod extends Enum[GreetingMethod[_]] {
+  def apply[A: GreetingMethod]: GreetingMethod[A] = implicitly[GreetingMethod[A]]
+
   /**
    * Констрейнт для гетерогенной мапы с методами приветствий
    */
@@ -83,7 +86,7 @@ object GreetingMethod extends Enum[GreetingMethod[_]] {
   override def values: IndexedSeq[GreetingMethod[_]] = findValues
 
   implicit def encoder[A]: Encoder[GreetingMethod[A]] = encodeString.contramap(_.entryName)
-  implicit val decoder: Decoder[GreetingMethod[_]]    = decodeString.map(GreetingMethod.withName)
+  implicit def decoder[A]: Decoder[GreetingMethod[A]] = decodeString.map(GreetingMethod.withName(_).asInstanceOf[GreetingMethod[A]])
 
   /**
    * Метод создания гетерогенной map с методами приветствий, каждый элемент которой содержит мапу приветствий этого метода.
