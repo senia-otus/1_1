@@ -4,63 +4,27 @@ import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
 import ru.otus.sc.greet.GreetingConfig
-import ru.otus.sc.greet.dao.GreetingDao.MapConstraint
-import ru.otus.sc.greet.dao.GreetingDao.MapConstraint.GreetingMethodMap
-import ru.otus.sc.greet.model.GreetingMethod.{ BotGreetingMethod, GuestGreetingMethod, UserGreetingMethod }
+import ru.otus.sc.greet.model.GreetingMethod.MapConstraint.GreetingMethodMap
 import ru.otus.sc.greet.model._
-import shapeless.HMap
-
-import scala.collection.concurrent.TrieMap
 
 trait GreetingDao {
-  def greet[A](someone: A)(implicit
-    gm: GreetingMethod[A],
-    mc: MapConstraint[GreetingMethod[A], GreetingMethodMap[A]]
-  ): Greeting[A]
-
-  def findGreetings[A](id: Id[A])(implicit
-    gm: GreetingMethod[A],
-    mc: MapConstraint[GreetingMethod[A], GreetingMethodMap[A]]
-  ): List[Greeting[A]]
+  def greet[A](someone: A)(implicit gm: GreetingMethod[A]): Greeting[A]
+  def findGreetings[A](id: Id[A])(implicit gm: GreetingMethod[A]): List[Greeting[A]]
 }
 
 object GreetingDao {
-  case class MapConstraint[-K, V]()
-  object MapConstraint {
-    type GreetingMethodMap[A] = TrieMap[Id[Greeting[A]], Greeting[A]]
-    implicit lazy val userMap  = new MapConstraint[GreetingMethod[User], GreetingMethodMap[User]]
-    implicit lazy val guestMap = new MapConstraint[GreetingMethod[Guest], GreetingMethodMap[Guest]]
-    implicit lazy val botMap   = new MapConstraint[GreetingMethod[Bot], GreetingMethodMap[Bot]]
-  }
-
-  def methodsMap: HMap[MapConstraint] = {
-    GreetingMethod.values.foldLeft(new HMap[MapConstraint]) { (map, gm) =>
-      gm match {
-        case method @ UserGreetingMethod  => map + (method -> TrieMap.empty[Id[Greeting[User]], Greeting[User]])
-        case method @ GuestGreetingMethod => map + (method -> TrieMap.empty[Id[Greeting[Guest]], Greeting[Guest]])
-        case method @ BotGreetingMethod   => map + (method -> TrieMap.empty[Id[Greeting[Bot]], Greeting[Bot]])
-      }
-    }
-  }
-
   def inmemory(config: GreetingConfig): GreetingDao =
     new GreetingDao {
       private val counter   = new AtomicInteger
-      private val greetings = GreetingDao.methodsMap
+      private val greetings = GreetingMethod.toMap
 
-      private def getMethodMap[A](
-        gm: GreetingMethod[A],
-        mc: MapConstraint[GreetingMethod[A], GreetingMethodMap[A]]
-      ): GreetingMethodMap[A] = {
+      private def getMethodMap[A](gm: GreetingMethod[A]): GreetingMethodMap[A] = {
         greetings
-          .get(gm)(mc)
+          .get(gm)(gm.constraint)
           .getOrElse(throw new RuntimeException(s"Unregistered greeting method: $gm. Should never happen"))
       }
 
-      override def greet[A](someone: A)(implicit
-        gm: GreetingMethod[A],
-        mc: MapConstraint[GreetingMethod[A], GreetingMethodMap[A]]
-      ): Greeting[A] = {
+      override def greet[A](someone: A)(implicit gm: GreetingMethod[A]): Greeting[A] = {
         val id       = Id(counter.incrementAndGet())
         val greeting = Greeting(
           Some(id),
@@ -69,15 +33,12 @@ object GreetingDao {
           s"${config.prefix} ${gm.greet(someone)} ${config.postfix}",
           LocalDateTime.now
         )
-        getMethodMap(gm, mc).update(id, greeting)
+        getMethodMap(gm).update(id, greeting)
         greeting
       }
 
-      override def findGreetings[A](id: Id[A])(implicit
-        gm: GreetingMethod[A],
-        mc: MapConstraint[GreetingMethod[A], GreetingMethodMap[A]]
-      ): List[Greeting[A]] = {
-        getMethodMap(gm, mc)
+      override def findGreetings[A](id: Id[A])(implicit gm: GreetingMethod[A]): List[Greeting[A]] = {
+        getMethodMap(gm)
           .values
           .filter { greeting =>
             greeting.greetingMethod == gm &&

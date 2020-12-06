@@ -2,11 +2,11 @@ package ru.otus.sc.greet
 
 import cats.effect.IO
 import org.http4s.HttpRoutes
-import org.http4s.circe.CirceEntityCodec.{ circeEntityDecoder, circeEntityEncoder }
+import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.`User-Agent`
-import ru.otus.sc.greet.model.{ Bot, Id, InvalidUserError, User, UserNotFoundError }
-import ru.otus.sc.greet.service.{ BotService, GreetingService, UserService }
+import ru.otus.sc.greet.model.{Bot, GreetingFilter, Id, InvalidUserError, User, UserNotFoundError}
+import ru.otus.sc.greet.service.{BotService, GreetingService, UserService}
 
 object Routes {
   def apply(botService: BotService[IO], userService: UserService, greetingService: GreetingService): HttpRoutes[IO] = {

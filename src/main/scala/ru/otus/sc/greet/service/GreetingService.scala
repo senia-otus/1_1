@@ -8,6 +8,7 @@ trait GreetingService {
   def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]]
   def greetBot(bot: Bot): Greeting[Bot]
   def greetGuest: Greeting[Guest]
+  def findGreetings: Unit
 }
 
 object GreetingService {
@@ -27,6 +28,10 @@ object GreetingService {
 
       def greetGuest: Greeting[Guest] = {
         greetingDao.greet(Guest())
+      }
+
+      def findGreetings = {
+        ??? //greetingDao.findGreetings()
       }
     }
   }
