@@ -8,30 +8,30 @@ trait GreetingService {
   def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]]
   def greetBot(bot: Bot): Greeting[Bot]
   def greetGuest: Greeting[Guest]
-  def findGreetings: Unit
+  def findGreetings[A: GreetingMethod](id: Option[Id[A]], text: Option[String]): List[Greeting[A]]
 }
 
 object GreetingService {
   def apply(greetingDao: GreetingDao, userService: UserService): GreetingService = {
     new GreetingService {
-      def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting[User]] = {
+      override def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting[User]] = {
         userService.find(id).map(user => greetingDao.greet(user))
       }
 
-      def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]] = {
+      override def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]] = {
         userService.findSubordinates(id).map(_.map(user => greetingDao.greet(user)))
       }
 
-      def greetBot(bot: Bot): Greeting[Bot] = {
+      override def greetBot(bot: Bot): Greeting[Bot] = {
         greetingDao.greet(bot)
       }
 
-      def greetGuest: Greeting[Guest] = {
+      override def greetGuest: Greeting[Guest] = {
         greetingDao.greet(Guest())
       }
 
-      def findGreetings = {
-        ??? //greetingDao.findGreetings()
+      override def findGreetings[A: GreetingMethod](id: Option[Id[A]], text: Option[String]): List[Greeting[A]] = {
+        greetingDao.findGreetings(id, text)
       }
     }
   }

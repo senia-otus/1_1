@@ -2,18 +2,18 @@ package ru.otus.sc.greet.model
 
 import java.time.LocalDateTime
 
-import derevo.circe.codec
 import derevo.derive
-import enumeratum.{Enum, EnumEntry}
+import derevo.circe.encoder
+import enumeratum.{ Enum, EnumEntry }
 import io.circe.Decoder.decodeString
 import io.circe.Encoder.encodeString
-import io.circe.{Decoder, Encoder}
-import ru.otus.sc.greet.model.GreetingMethod.MapConstraint
+import io.circe.{ Decoder, Encoder }
+import ru.otus.sc.greet.model.GreetingMethod.{ MapConstraint }
 import shapeless.HMap
 
 import scala.collection.concurrent.TrieMap
 
-@derive(codec)
+@derive(encoder)
 case class Greeting[A](
   id: Option[Id[Greeting[A]]],
   greetedId: Option[Id[A]],
@@ -57,9 +57,8 @@ object GreetingMethod extends Enum[GreetingMethod[_]] {
 
   override def values: IndexedSeq[GreetingMethod[_]] = findValues
 
-  implicit def encoder[A]: Encoder[GreetingMethod[A]] = encodeString.contramap(_.toString)
-  implicit def decoder[A]: Decoder[GreetingMethod[A]] =
-    decodeString.map(GreetingMethod.withName(_).asInstanceOf[GreetingMethod[A]])
+  implicit def encoder[A]: Encoder[GreetingMethod[A]] = encodeString.contramap(_.entryName)
+  implicit val decoder: Decoder[GreetingMethod[_]]    = decodeString.map(GreetingMethod.withName)
 
   def toMap: HMap[MapConstraint] = {
     GreetingMethod.values.foldLeft(new HMap[MapConstraint]) { (map, gm) =>

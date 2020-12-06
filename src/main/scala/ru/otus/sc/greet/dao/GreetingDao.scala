@@ -9,7 +9,7 @@ import ru.otus.sc.greet.model._
 
 trait GreetingDao {
   def greet[A](someone: A)(implicit gm: GreetingMethod[A]): Greeting[A]
-  def findGreetings[A](id: Id[A])(implicit gm: GreetingMethod[A]): List[Greeting[A]]
+  def findGreetings[A](id: Option[Id[A]], name: Option[String])(implicit gm: GreetingMethod[A]): List[Greeting[A]]
 }
 
 object GreetingDao {
@@ -37,12 +37,14 @@ object GreetingDao {
         greeting
       }
 
-      override def findGreetings[A](id: Id[A])(implicit gm: GreetingMethod[A]): List[Greeting[A]] = {
+      override def findGreetings[A](id: Option[Id[A]], text: Option[String])(implicit
+        gm: GreetingMethod[A]
+      ): List[Greeting[A]] = {
         getMethodMap(gm)
           .values
           .filter { greeting =>
             greeting.greetingMethod == gm &&
-            greeting.greetedId.contains(id)
+            (greeting.greetedId == id || text.fold(false)(greeting.text.contains))
           }.toList
       }
     }
