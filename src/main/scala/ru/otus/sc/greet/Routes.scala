@@ -4,11 +4,12 @@ import cats.effect.IO
 import org.http4s.HttpRoutes
 import org.http4s.circe.CirceEntityCodec.{ circeEntityDecoder, circeEntityEncoder }
 import org.http4s.dsl.Http4sDsl
-import ru.otus.sc.greet.model.{ Id, InvalidUserError, User, UserNotFoundError }
-import ru.otus.sc.greet.service.{ GreetingService, UserService }
+import org.http4s.headers.`User-Agent`
+import ru.otus.sc.greet.model.{ Bot, Id, InvalidUserError, User, UserNotFoundError }
+import ru.otus.sc.greet.service.{ BotService, GreetingService, UserService }
 
 object Routes {
-  def apply(userService: UserService, greetingService: GreetingService): HttpRoutes[IO] = {
+  def apply(botService: BotService[IO], userService: UserService, greetingService: GreetingService): HttpRoutes[IO] = {
     val dsl = new Http4sDsl[IO] {}
     import dsl._
 
@@ -36,6 +37,12 @@ object Routes {
             NotFound(List.empty[User])
           case Right(greetings)                      =>
             Ok(greetings)
+        }
+
+      case req @ GET -> Root / "greet"                                      =>
+        botService.asBot(req) match {
+          case Some(bot) => Ok(greetingService.greetBot(bot))
+          case None      => Ok(greetingService.greetGuest)
         }
     }
   }

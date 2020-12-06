@@ -7,23 +7,25 @@ val V = new {
   val enumeratum = "1.6.0"
   val http4s     = "1.0.0-M4"
   val shapeless  = "2.3.3"
+  val pureconfig = "0.14.0"
 }
 
 libraryDependencies ++= Seq(
-  "com.chuusai"   %% "shapeless"           % V.shapeless,
-  "com.beachape"  %% "enumeratum"          % V.enumeratum,
-  "com.beachape"  %% "enumeratum-circe"    % V.enumeratum,
-  "org.manatki"   %% "derevo-circe"        % V.derevo,
-  "org.http4s"    %% "http4s-dsl"          % V.http4s,
-  "org.http4s"    %% "http4s-blaze-client" % V.http4s,
-  "org.http4s"    %% "http4s-blaze-server" % V.http4s,
-  "org.http4s"    %% "http4s-circe"        % V.http4s,
-  "org.http4s"    %% "http4s-core"         % V.http4s,
-  "io.circe"      %% "circe-core"          % V.circe,
-  "io.circe"      %% "circe-generic"       % V.circe,
-  "io.circe"      %% "circe-parser"        % V.circe,
-  "org.typelevel" %% "cats-core"           % V.cats,
-  "org.typelevel" %% "cats-effect"         % V.cats
+  "com.chuusai"           %% "shapeless"           % V.shapeless,
+  "com.beachape"          %% "enumeratum"          % V.enumeratum,
+  "com.beachape"          %% "enumeratum-circe"    % V.enumeratum,
+  "org.manatki"           %% "derevo-circe"        % V.derevo,
+  "org.http4s"            %% "http4s-dsl"          % V.http4s,
+  "org.http4s"            %% "http4s-blaze-client" % V.http4s,
+  "org.http4s"            %% "http4s-blaze-server" % V.http4s,
+  "org.http4s"            %% "http4s-circe"        % V.http4s,
+  "org.http4s"            %% "http4s-core"         % V.http4s,
+  "io.circe"              %% "circe-core"          % V.circe,
+  "io.circe"              %% "circe-generic"       % V.circe,
+  "io.circe"              %% "circe-parser"        % V.circe,
+  "org.typelevel"         %% "cats-core"           % V.cats,
+  "org.typelevel"         %% "cats-effect"         % V.cats,
+  "com.github.pureconfig" %% "pureconfig"          % V.pureconfig
 )
 
 scalacOptions := Seq(

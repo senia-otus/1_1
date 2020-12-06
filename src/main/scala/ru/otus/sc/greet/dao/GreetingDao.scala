@@ -35,7 +35,7 @@ object GreetingDao {
   }
 
   def methodsMap: HMap[MapConstraint] = {
-    GreetingMethod.values.foldRight(new HMap[MapConstraint]) { (gm, map) =>
+    GreetingMethod.values.foldLeft(new HMap[MapConstraint]) { (map, gm) =>
       gm match {
         case method @ UserGreetingMethod  => map + (method -> TrieMap.empty[Id[Greeting[User]], Greeting[User]])
         case method @ GuestGreetingMethod => map + (method -> TrieMap.empty[Id[Greeting[Guest]], Greeting[Guest]])
@@ -48,7 +48,7 @@ object GreetingDao {
     new GreetingDao {
       private val counter                  = new AtomicInteger
       private val greetings                = GreetingDao.methodsMap
-      override val greetingPrefix: String  = "Hi, "
+      override val greetingPrefix: String  = "Hi,"
       override val greetingPostfix: String = "!"
 
       private def getMethodMap[A](
