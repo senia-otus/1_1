@@ -3,6 +3,7 @@ package ru.otus.sc.greet.dao
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
+import ru.otus.sc.greet.GreetingConfig
 import ru.otus.sc.greet.dao.GreetingDao.MapConstraint
 import ru.otus.sc.greet.dao.GreetingDao.MapConstraint.GreetingMethodMap
 import ru.otus.sc.greet.model.GreetingMethod.{ BotGreetingMethod, GuestGreetingMethod, UserGreetingMethod }
@@ -12,8 +13,6 @@ import shapeless.HMap
 import scala.collection.concurrent.TrieMap
 
 trait GreetingDao {
-  def greetingPrefix: String
-  def greetingPostfix: String
   def greet[A](someone: A)(implicit
     gm: GreetingMethod[A],
     mc: MapConstraint[GreetingMethod[A], GreetingMethodMap[A]]
@@ -44,12 +43,10 @@ object GreetingDao {
     }
   }
 
-  def inmemory: GreetingDao =
+  def inmemory(config: GreetingConfig): GreetingDao =
     new GreetingDao {
-      private val counter                  = new AtomicInteger
-      private val greetings                = GreetingDao.methodsMap
-      override val greetingPrefix: String  = "Hi,"
-      override val greetingPostfix: String = "!"
+      private val counter   = new AtomicInteger
+      private val greetings = GreetingDao.methodsMap
 
       private def getMethodMap[A](
         gm: GreetingMethod[A],
@@ -69,7 +66,7 @@ object GreetingDao {
           Some(id),
           gm.id(someone),
           gm,
-          s"$greetingPrefix ${gm.greet(someone)} $greetingPostfix",
+          s"${config.prefix} ${gm.greet(someone)} ${config.postfix}",
           LocalDateTime.now
         )
         getMethodMap(gm, mc).update(id, greeting)

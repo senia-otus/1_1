@@ -20,6 +20,7 @@ object BotService {
         request.headers.get(`User-Agent`).flatMap { userAgent =>
           patterns
             .view
+            .map(x => {println(x); x})
             .flatMap(_.findFirstIn(userAgent.value))
             .headOption
             .map(Bot.apply)
