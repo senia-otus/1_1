@@ -7,17 +7,38 @@ import ru.otus.sc.greet.GreetingConfig
 import ru.otus.sc.greet.model.GreetingMethod.MapConstraint.GreetingMethodMap
 import ru.otus.sc.greet.model._
 
+/***
+ * Dao для хранения приветствий
+ */
 trait GreetingDao {
+  /**
+   * Создаёт приветствие
+   * @param someone приветствуемая сущность (пользователь, бот, гость)
+   * @param gm      метод приветствия
+   * @return        приветствие для данной сущности
+   */
   def greet[A](someone: A)(implicit gm: GreetingMethod[A]): Greeting[A]
-  def findGreetings[A](id: Option[Id[A]], name: Option[String])(implicit gm: GreetingMethod[A]): List[Greeting[A]]
+
+  /**
+   * Поиск приветствий
+   * @param id   идентификатор сущности (возможен только пользователь, т.к. для ботов и гостей пользователи не создаются)
+   * @param text текст приветствия
+   * @param gm   метод приветствия
+   * @return     список приветствий
+   */
+  def findGreetings[A](id: Option[Id[A]], text: Option[String])(implicit gm: GreetingMethod[A]): List[Greeting[A]]
 }
 
 object GreetingDao {
   def inmemory(config: GreetingConfig): GreetingDao =
     new GreetingDao {
+      //счётчик для генерации идентификаторов приветствий
       private val counter   = new AtomicInteger
+      //гетерогенная map для хранения приветствий разных типов сущностей: пользователи, боты, гости
       private val greetings = GreetingMethod.toMap
 
+      //получение map для конкретного метода приветствия из гетерогенной map
+      //полнота заполнения гетерогенной map гарантируется паттерн матчингом на GreetingMethod
       private def getMethodMap[A](gm: GreetingMethod[A]): GreetingMethodMap[A] = {
         greetings
           .get(gm)(gm.constraint)

@@ -13,6 +13,14 @@ import shapeless.HMap
 
 import scala.collection.concurrent.TrieMap
 
+/**
+ * Приветствие
+ * @param id             идентификатор приветствия
+ * @param greetedId      идентификатор приветствуемого
+ * @param greetingMethod метод приветствия
+ * @param text           текст приветствия
+ * @param time           время приветствия
+ */
 @derive(encoder)
 case class Greeting[A](
   id: Option[Id[Greeting[A]]],
@@ -22,13 +30,30 @@ case class Greeting[A](
   time: LocalDateTime
 )
 
+/**
+ * Метод приветствия. Попытался сделать его тайпклассом для [[GreetingDao]].
+ */
 sealed trait GreetingMethod[A] extends EnumEntry {
+  /**
+   * Возвращает идентификатор приветствуемой сущности, если её можно идентифицировать (например, пользователь)
+   */
   def id(someone: A): Option[Id[A]]
+
+  /**
+   * Генерирует текст приветствия для сущности
+   */
   def greet(someone: A): String
+
+  /**
+   * Возвращает констрейнт для гетерогенной map с методами приветствий
+   */
   def constraint: MapConstraint[GreetingMethod[A], MapConstraint.GreetingMethodMap[A]]
 }
 
 object GreetingMethod extends Enum[GreetingMethod[_]] {
+  /**
+   * Констрейнт для гетерогенной мапы с методами приветствий
+   */
   case class MapConstraint[-K, V]()
   object MapConstraint {
     type GreetingMethodMap[A] = TrieMap[Id[Greeting[A]], Greeting[A]]
@@ -60,6 +85,9 @@ object GreetingMethod extends Enum[GreetingMethod[_]] {
   implicit def encoder[A]: Encoder[GreetingMethod[A]] = encodeString.contramap(_.entryName)
   implicit val decoder: Decoder[GreetingMethod[_]]    = decodeString.map(GreetingMethod.withName)
 
+  /**
+   * Метод создания гетерогенной map с методами приветствий, каждый элемент которой содержит мапу приветствий этого метода.
+   */
   def toMap: HMap[MapConstraint] = {
     GreetingMethod.values.foldLeft(new HMap[MapConstraint]) { (map, gm) =>
       gm match {

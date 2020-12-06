@@ -3,6 +3,9 @@ package ru.otus.sc.greet.service
 import ru.otus.sc.greet.dao.GreetingDao
 import ru.otus.sc.greet.model._
 
+/**
+ * Сервис приветствий
+ */
 trait GreetingService {
   def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting[User]]
   def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]]

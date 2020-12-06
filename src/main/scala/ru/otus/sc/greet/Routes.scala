@@ -26,6 +26,7 @@ object Routes {
     }
 
     HttpRoutes.of[IO] {
+      //создание пользователя
       case req @ POST -> Root / "users"                                        =>
         req.decode[User] { user =>
           userService.create(user) match {
@@ -35,12 +36,14 @@ object Routes {
           }
         }
 
+      //приветствие пользователя
       case _ @GET -> Root / "users" / IntVar(id) / "greet"                     =>
         greetingService.greetUser(Id(id)) match {
           case Left(error: UserNotFoundError) => BadRequest(error)
           case Right(greeting)                => Ok(greeting)
         }
 
+      //приветствие подчинённых пользователя
       case _ @GET -> Root / "users" / IntVar(id) / "subordinates" / "greet"    =>
         greetingService.greetSubordinates(Id(id)) match {
           case Left(error: UserNotFoundError)        =>
@@ -51,12 +54,14 @@ object Routes {
             Ok(greetings)
         }
 
+      //приветствие бота или гостя
       case req @ GET -> Root / "greet"                                         =>
         botService.asBot(req) match {
           case Some(bot) => Ok(greetingService.greetBot(bot))
           case None      => Ok(greetingService.greetGuest)
         }
 
+      //поиск приветствий
       case _ @GET -> Root / "greetings" :? greetMethod(method) +& identity(id) =>
         GreetingMethod.withName(method) match {
           case method: UserGreetingMethod.type  =>

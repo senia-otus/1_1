@@ -7,6 +7,10 @@ import ru.otus.sc.greet.model.Bot
 
 import scala.util.matching.Regex
 
+/**
+ * Сервис, проверяющий, являющиеся ли клиент ботом
+ * @tparam F
+ */
 trait BotService[F[_]] {
   def asBot(request: Request[F]): Option[Bot]
 }
