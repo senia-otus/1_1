@@ -4,10 +4,7 @@ import java.time.LocalDateTime
 
 import derevo.circe.codec
 import derevo.derive
-import enumeratum.{ Enum, EnumEntry }
-import io.circe.Decoder.decodeString
-import io.circe.Encoder.encodeString
-import io.circe.{ Decoder, Encoder }
+import enumeratum.{ CirceEnum, Enum, EnumEntry }
 import ru.otus.sc.greet.model.GreetingMethod.MapConstraint
 import shapeless.HMap
 
@@ -58,7 +55,7 @@ sealed trait GreetingMethodTyped[A] extends GreetingMethod {
   override type Self    = GreetingMethodTyped[A]
 }
 
-object GreetingMethod extends Enum[GreetingMethod] {
+object GreetingMethod extends Enum[GreetingMethod] with CirceEnum[GreetingMethod] {
 
   /**
    * Констрейнт для гетерогенной мапы с методами приветствий
@@ -97,21 +94,15 @@ object GreetingMethod extends Enum[GreetingMethod] {
 
   override def values: IndexedSeq[GreetingMethod] = findValues
 
-  implicit def encoder[A]: Encoder[GreetingMethod] = encodeString.contramap(_.entryName)
-  implicit def decoder[A]: Decoder[GreetingMethod] = decodeString.map(GreetingMethod.withName)
-
   /**
    * Метод создания гетерогенной map с методами приветствий, каждый элемент которой содержит мапу приветствий этого метода.
    */
   def toMap: HMap[MapConstraint] = {
     GreetingMethod.values.foldLeft(new HMap[MapConstraint]) { (map, gm) =>
       gm match {
-        case method @ UserGreetingMethod  =>
-          map + (method.asInstanceOf[GreetingMethodTyped[User]] -> TrieMap.empty[Id[Greeting], Greeting])
-        case method @ GuestGreetingMethod =>
-          map + (method.asInstanceOf[GreetingMethodTyped[Guest]] -> TrieMap.empty[Id[Greeting], Greeting])
-        case method @ BotGreetingMethod   =>
-          map + (method.asInstanceOf[GreetingMethodTyped[Bot]] -> TrieMap.empty[Id[Greeting], Greeting])
+        case method: UserGreetingMethod.type  => map + (method -> TrieMap.empty[Id[Greeting], Greeting])
+        case method: GuestGreetingMethod.type => map + (method -> TrieMap.empty[Id[Greeting], Greeting])
+        case method: BotGreetingMethod.type   => map + (method -> TrieMap.empty[Id[Greeting], Greeting])
       }
     }
   }
