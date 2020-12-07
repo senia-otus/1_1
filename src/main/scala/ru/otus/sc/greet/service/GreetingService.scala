@@ -7,33 +7,33 @@ import ru.otus.sc.greet.model._
  * Сервис приветствий
  */
 trait GreetingService {
-  def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting[User]]
-  def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]]
-  def greetBot(bot: Bot): Greeting[Bot]
-  def greetGuest: Greeting[Guest]
-  def findGreetings[A: GreetingMethod](id: Option[Id[A]], text: Option[String]): List[Greeting[A]]
+  def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting]
+  def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting]]
+  def greetBot(bot: Bot): Greeting
+  def greetGuest: Greeting
+  def findGreetings[A: GreetingMethodTyped](id: Option[Id[A]], text: Option[String]): List[Greeting]
 }
 
 object GreetingService {
   def apply(greetingDao: GreetingDao, userService: UserService): GreetingService = {
     new GreetingService {
-      override def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting[User]] = {
+      override def greetUser(id: Id[User]): Either[UserNotFoundError, Greeting] = {
         userService.find(id).map(user => greetingDao.greet(user))
       }
 
-      override def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting[User]]] = {
+      override def greetSubordinates(id: Id[User]): Either[UserNotFoundError, Set[Greeting]] = {
         userService.findSubordinates(id).map(_.map(user => greetingDao.greet(user)))
       }
 
-      override def greetBot(bot: Bot): Greeting[Bot] = {
+      override def greetBot(bot: Bot): Greeting = {
         greetingDao.greet(bot)
       }
 
-      override def greetGuest: Greeting[Guest] = {
+      override def greetGuest: Greeting = {
         greetingDao.greet(Guest())
       }
 
-      override def findGreetings[A: GreetingMethod](id: Option[Id[A]], text: Option[String]): List[Greeting[A]] = {
+      override def findGreetings[A: GreetingMethodTyped](id: Option[Id[A]], text: Option[String]): List[Greeting] = {
         greetingDao.findGreetings(id, text)
       }
     }

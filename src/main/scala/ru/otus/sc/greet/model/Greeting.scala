@@ -22,10 +22,10 @@ import scala.collection.concurrent.TrieMap
  * @param time           время приветствия
  */
 @derive(codec)
-case class Greeting[A](
-  id: Option[Id[Greeting[A]]],
-  greetedId: Option[Id[A]],
-  greetingMethod: GreetingMethod[A],
+case class Greeting(
+  id: Option[Id[Greeting]],
+  greetedId: Option[Long],
+  greetingMethod: GreetingMethod,
   text: String,
   time: LocalDateTime
 )
@@ -33,60 +33,72 @@ case class Greeting[A](
 /**
  * Метод приветствия. Попытался сделать его тайпклассом для [[GreetingDao]].
  */
-sealed trait GreetingMethod[A] extends EnumEntry {
+sealed trait GreetingMethod extends EnumEntry {
+  type Greeted
+  type Self
 
   /**
    * Возвращает идентификатор приветствуемой сущности, если её можно идентифицировать (например, пользователь)
    */
-  def id(someone: A): Option[Id[A]]
+  def id(someone: Greeted): Option[Long]
 
   /**
    * Генерирует текст приветствия для сущности
    */
-  def greet(someone: A): String
+  def greet(someone: Greeted): String
 
   /**
    * Возвращает констрейнт для гетерогенной map с методами приветствий
    */
-  def constraint: MapConstraint[GreetingMethod[A], MapConstraint.GreetingMethodMap[A]]
+  def constraint: MapConstraint[Self, MapConstraint.GreetingMethodMap[Greeted]]
 }
 
-object GreetingMethod extends Enum[GreetingMethod[_]] {
-  def apply[A: GreetingMethod]: GreetingMethod[A] = implicitly[GreetingMethod[A]]
+sealed trait GreetingMethodTyped[A] extends GreetingMethod {
+  override type Greeted = A
+  override type Self    = GreetingMethodTyped[A]
+}
+
+object GreetingMethod extends Enum[GreetingMethod] {
 
   /**
    * Констрейнт для гетерогенной мапы с методами приветствий
    */
   case class MapConstraint[-K, V]()
   object MapConstraint {
-    type GreetingMethodMap[A] = TrieMap[Id[Greeting[A]], Greeting[A]]
-    implicit lazy val userMap  = new MapConstraint[GreetingMethod[User], GreetingMethodMap[User]]
-    implicit lazy val guestMap = new MapConstraint[GreetingMethod[Guest], GreetingMethodMap[Guest]]
-    implicit lazy val botMap   = new MapConstraint[GreetingMethod[Bot], GreetingMethodMap[Bot]]
+    type GreetingMethodMap[A] = TrieMap[Id[Greeting], Greeting]
+    implicit lazy val userMap  = new MapConstraint[GreetingMethodTyped[User], GreetingMethodMap[User]]
+    implicit lazy val guestMap = new MapConstraint[GreetingMethodTyped[Guest], GreetingMethodMap[Guest]]
+    implicit lazy val botMap   = new MapConstraint[GreetingMethodTyped[Bot], GreetingMethodMap[Bot]]
   }
 
-  implicit case object UserGreetingMethod extends GreetingMethod[User] {
-    override def id(user: User): Option[Id[User]] = user.id
-    override def greet(user: User): String        = user.name
-    override def constraint                       = MapConstraint.userMap
+  implicit case object UserGreetingMethod extends GreetingMethod with GreetingMethodTyped[User] {
+    override type Greeted = User
+    override type Self    = GreetingMethodTyped[User]
+    override def id(user: User): Option[Long] = user.id.map(_.value)
+    override def greet(user: User): String    = user.name
+    override def constraint                   = MapConstraint.userMap
   }
 
-  implicit case object GuestGreetingMethod extends GreetingMethod[Guest] {
-    override def id(guest: Guest): Option[Id[Guest]] = None
-    override def greet(guest: Guest): String         = "guest"
-    override def constraint                          = MapConstraint.guestMap
+  implicit case object GuestGreetingMethod extends GreetingMethod with GreetingMethodTyped[Guest] {
+    override type Greeted = Guest
+    override type Self    = GreetingMethodTyped[Guest]
+    override def id(guest: Guest): Option[Long] = None
+    override def greet(guest: Guest): String    = "guest"
+    override def constraint                     = MapConstraint.guestMap
   }
 
-  implicit case object BotGreetingMethod extends GreetingMethod[Bot] {
-    override def id(guest: Bot): Option[Id[Bot]] = None
-    override def greet(bot: Bot): String         = bot.userAgent
-    override def constraint                      = MapConstraint.botMap
+  implicit case object BotGreetingMethod extends GreetingMethod with GreetingMethodTyped[Bot] {
+    override type Greeted = Bot
+    override type Self    = GreetingMethodTyped[Bot]
+    override def id(guest: Bot): Option[Long] = None
+    override def greet(bot: Bot): String      = bot.userAgent
+    override def constraint                   = MapConstraint.botMap
   }
 
-  override def values: IndexedSeq[GreetingMethod[_]] = findValues
+  override def values: IndexedSeq[GreetingMethod] = findValues
 
-  implicit def encoder[A]: Encoder[GreetingMethod[A]] = encodeString.contramap(_.entryName)
-  implicit def decoder[A]: Decoder[GreetingMethod[A]] = decodeString.map(GreetingMethod.withName(_).asInstanceOf[GreetingMethod[A]])
+  implicit def encoder[A]: Encoder[GreetingMethod] = encodeString.contramap(_.entryName)
+  implicit def decoder[A]: Decoder[GreetingMethod] = decodeString.map(GreetingMethod.withName)
 
   /**
    * Метод создания гетерогенной map с методами приветствий, каждый элемент которой содержит мапу приветствий этого метода.
@@ -94,9 +106,12 @@ object GreetingMethod extends Enum[GreetingMethod[_]] {
   def toMap: HMap[MapConstraint] = {
     GreetingMethod.values.foldLeft(new HMap[MapConstraint]) { (map, gm) =>
       gm match {
-        case method @ UserGreetingMethod  => map + (method -> TrieMap.empty[Id[Greeting[User]], Greeting[User]])
-        case method @ GuestGreetingMethod => map + (method -> TrieMap.empty[Id[Greeting[Guest]], Greeting[Guest]])
-        case method @ BotGreetingMethod   => map + (method -> TrieMap.empty[Id[Greeting[Bot]], Greeting[Bot]])
+        case method @ UserGreetingMethod  =>
+          map + (method.asInstanceOf[GreetingMethodTyped[User]] -> TrieMap.empty[Id[Greeting], Greeting])
+        case method @ GuestGreetingMethod =>
+          map + (method.asInstanceOf[GreetingMethodTyped[Guest]] -> TrieMap.empty[Id[Greeting], Greeting])
+        case method @ BotGreetingMethod   =>
+          map + (method.asInstanceOf[GreetingMethodTyped[Bot]] -> TrieMap.empty[Id[Greeting], Greeting])
       }
     }
   }

@@ -32,30 +32,28 @@ case class GreetingClient(client: Client[IO], cs: ContextShift[IO], server: Serv
     }
   }
 
-  def greetUser(id: Id[User]): IO[Greeting[User]] = {
-    expect[Greeting[User]] {
+  def greetUser(id: Id[User]): IO[Greeting] = {
+    expect[Greeting] {
       GET(uri"/users" / id.value.toString / "greet")
     }
   }
 
-  def greetSubordinates(id: Id[User]): IO[List[Greeting[User]]] = {
-    expect[List[Greeting[User]]] {
+  def greetSubordinates(id: Id[User]): IO[List[Greeting]] = {
+    expect[List[Greeting]] {
       GET(uri"/users" / id.value.toString / "subordinates" / "greet")
     }
   }
 
-  def greet[A: GreetingMethod](userAgent: String)(implicit ed: EntityDecoder[IO, Greeting[A]]): IO[Greeting[A]] = {
-    expect[Greeting[A]] {
+  def greet(userAgent: String): IO[Greeting] = {
+    expect[Greeting] {
       GET(uri"/greet").map(_.withHeaders(Header(`User-Agent`.name.toString, userAgent)))
     }
   }
 
-  def findGreetings[A: GreetingMethod](id: String)(implicit
-    ed: EntityDecoder[IO, List[Greeting[A]]]
-  ): IO[List[Greeting[A]]] = {
-    expect[List[Greeting[A]]] {
+  def findGreetings(id: String, greetingMethod: GreetingMethod): IO[List[Greeting]] = {
+    expect[List[Greeting]] {
       GET(uri"/greetings"
-        .+?("greet_method", GreetingMethod[A].entryName)
+        .+?("greet_method", greetingMethod.entryName)
         .+?("id", id))
     }
   }

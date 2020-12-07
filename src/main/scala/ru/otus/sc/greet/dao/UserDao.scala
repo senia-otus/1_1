@@ -11,6 +11,7 @@ import scala.collection.concurrent.TrieMap
  * Dao для хранения пользователей
  */
 trait UserDao {
+
   /**
    * Создание пользователя
    */

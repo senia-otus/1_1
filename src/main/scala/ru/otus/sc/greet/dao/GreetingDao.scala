@@ -4,20 +4,21 @@ import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
 import ru.otus.sc.greet.GreetingConfig
-import ru.otus.sc.greet.model.GreetingMethod.MapConstraint.GreetingMethodMap
 import ru.otus.sc.greet.model._
 
-/***
+/**
+ * *
  * Dao для хранения приветствий
  */
 trait GreetingDao {
+
   /**
    * Создаёт приветствие
    * @param someone приветствуемая сущность (пользователь, бот, гость)
    * @param gm      метод приветствия
    * @return        приветствие для данной сущности
    */
-  def greet[A](someone: A)(implicit gm: GreetingMethod[A]): Greeting[A]
+  def greet[A](someone: A)(implicit gm: GreetingMethodTyped[A]): Greeting
 
   /**
    * Поиск приветствий
@@ -26,7 +27,7 @@ trait GreetingDao {
    * @param gm   метод приветствия
    * @return     список приветствий
    */
-  def findGreetings[A](id: Option[Id[A]], text: Option[String])(implicit gm: GreetingMethod[A]): List[Greeting[A]]
+  def findGreetings[A](id: Option[Id[A]], text: Option[String])(implicit gm: GreetingMethodTyped[A]): List[Greeting]
 }
 
 object GreetingDao {
@@ -39,13 +40,13 @@ object GreetingDao {
 
       //получение map для конкретного метода приветствия из гетерогенной map
       //полнота заполнения гетерогенной map гарантируется паттерн матчингом на GreetingMethod
-      private def getMethodMap[A](gm: GreetingMethod[A]): GreetingMethodMap[A] = {
+      private def getMethodMap[A](gm: GreetingMethodTyped[A]) = {
         greetings
           .get(gm)(gm.constraint)
           .getOrElse(throw new RuntimeException(s"Unregistered greeting method: $gm. Should never happen"))
       }
 
-      override def greet[A](someone: A)(implicit gm: GreetingMethod[A]): Greeting[A] = {
+      override def greet[A](someone: A)(implicit gm: GreetingMethodTyped[A]): Greeting = {
         val id       = Id(counter.incrementAndGet())
         val greeting = Greeting(
           Some(id),
@@ -59,13 +60,13 @@ object GreetingDao {
       }
 
       override def findGreetings[A](id: Option[Id[A]], text: Option[String])(implicit
-        gm: GreetingMethod[A]
-      ): List[Greeting[A]] = {
+        gm: GreetingMethodTyped[A]
+      ): List[Greeting] = {
         getMethodMap(gm)
           .values
           .filter { greeting =>
             greeting.greetingMethod == gm &&
-            (greeting.greetedId == id || text.fold(false)(greeting.text.contains))
+            (greeting.greetedId == id.map(_.value) || text.fold(false)(greeting.text.contains))
           }.toList
       }
     }

@@ -48,7 +48,7 @@ class GreetingRoutesTest extends Test {
 
     "greet guest" in { (client: GreetingClient) =>
       for {
-        greeting <- client.greet[Guest]("Chrome")
+        greeting <- client.greet("Chrome")
       } yield {
         greeting.greetingMethod shouldBe a[GuestGreetingMethod.type]
         greeting.text shouldBe "Hi, guest !"
@@ -57,7 +57,7 @@ class GreetingRoutesTest extends Test {
 
     "greet bot" in { (client: GreetingClient) =>
       for {
-        greeting <- client.greet[Bot]("Googlebot")
+        greeting <- client.greet("Googlebot")
       } yield {
         greeting.greetingMethod shouldBe a[BotGreetingMethod.type]
         greeting.text shouldBe "Hi, Googlebot !"
