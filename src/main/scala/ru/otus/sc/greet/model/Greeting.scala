@@ -69,24 +69,18 @@ object GreetingMethod extends Enum[GreetingMethod] with CirceEnum[GreetingMethod
   }
 
   implicit case object UserGreetingMethod extends GreetingMethod with GreetingMethodTyped[User] {
-    override type Greeted = User
-    override type Self    = GreetingMethodTyped[User]
     override def id(user: User): Option[Long] = user.id.map(_.value)
     override def greet(user: User): String    = user.name
     override def constraint                   = MapConstraint.userMap
   }
 
   implicit case object GuestGreetingMethod extends GreetingMethod with GreetingMethodTyped[Guest] {
-    override type Greeted = Guest
-    override type Self    = GreetingMethodTyped[Guest]
     override def id(guest: Guest): Option[Long] = None
     override def greet(guest: Guest): String    = "guest"
     override def constraint                     = MapConstraint.guestMap
   }
 
   implicit case object BotGreetingMethod extends GreetingMethod with GreetingMethodTyped[Bot] {
-    override type Greeted = Bot
-    override type Self    = GreetingMethodTyped[Bot]
     override def id(guest: Bot): Option[Long] = None
     override def greet(bot: Bot): String      = bot.userAgent
     override def constraint                   = MapConstraint.botMap
