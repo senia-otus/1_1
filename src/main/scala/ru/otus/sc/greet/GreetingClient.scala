@@ -16,7 +16,7 @@ import org.http4s.implicits.http4sLiteralsSyntax
 /**
  * Клиент для обращения к API сервисов. Используется в тестах
  */
-case class GreetingClient(client: Client[IO], cs: ContextShift[IO], server: Server) {
+case class GreetingClient(client: Client[IO], server: Server) {
   private def expect[A](baseRequest: IO[Request[IO]])(implicit ed: EntityDecoder[IO, A]): IO[A] = {
     for {
       request  <- baseRequest.map { request =>

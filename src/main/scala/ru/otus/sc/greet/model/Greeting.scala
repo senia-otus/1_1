@@ -47,7 +47,7 @@ sealed trait GreetingMethod extends EnumEntry {
   /**
    * Возвращает констрейнт для гетерогенной map с методами приветствий
    */
-  def constraint: MapConstraint[Self, MapConstraint.GreetingMethodMap[Greeted]]
+  def constraint: MapConstraint[Self, MapConstraint.GreetingMethodMap]
 }
 
 sealed trait GreetingMethodTyped[A] extends GreetingMethod {
@@ -62,10 +62,10 @@ object GreetingMethod extends Enum[GreetingMethod] with CirceEnum[GreetingMethod
    */
   case class MapConstraint[-K, V]()
   object MapConstraint {
-    type GreetingMethodMap[A] = TrieMap[Id[Greeting], Greeting]
-    implicit lazy val userMap  = new MapConstraint[GreetingMethodTyped[User], GreetingMethodMap[User]]
-    implicit lazy val guestMap = new MapConstraint[GreetingMethodTyped[Guest], GreetingMethodMap[Guest]]
-    implicit lazy val botMap   = new MapConstraint[GreetingMethodTyped[Bot], GreetingMethodMap[Bot]]
+    type GreetingMethodMap = TrieMap[Id[Greeting], Greeting]
+    implicit lazy val userMap  = new MapConstraint[GreetingMethodTyped[User], GreetingMethodMap]
+    implicit lazy val guestMap = new MapConstraint[GreetingMethodTyped[Guest], GreetingMethodMap]
+    implicit lazy val botMap   = new MapConstraint[GreetingMethodTyped[Bot], GreetingMethodMap]
   }
 
   implicit case object UserGreetingMethod extends GreetingMethod with GreetingMethodTyped[User] {
