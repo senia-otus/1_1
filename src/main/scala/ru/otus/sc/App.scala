@@ -1,22 +1,26 @@
 package ru.otus.sc
 
+import ru.otus.sc.custom.ExtCustomService
+import ru.otus.sc.custom.dao.impl.CustomDaoImpl
+import ru.otus.sc.custom.service.CustomService
+import ru.otus.sc.custom.service.impl.CustomServiceImpl
+import ru.otus.sc.greet.ExtGreetingService
 import ru.otus.sc.greet.dao.impl.GreetingDaoImpl
-import ru.otus.sc.greet.model.{GreetRequest, GreetResponse}
 import ru.otus.sc.greet.service.GreetingService
 import ru.otus.sc.greet.service.impl.GreetingServiceImpl
 
-trait App {
-  def greet(request: GreetRequest): GreetResponse
-}
+trait App extends ExtGreetingService with ExtCustomService {}
 
 object App {
-  private class AppImpl(greeting: GreetingService) extends App {
-    def greet(request: GreetRequest): GreetResponse = greeting.greet(request)
-  }
+  private class AppImpl(val greeting: GreetingService, val custom: CustomService) extends App {}
 
   def apply(): App = {
     val greetingDao     = new GreetingDaoImpl
     val greetingService = new GreetingServiceImpl(greetingDao)
-    new AppImpl(greetingService)
+
+    val customDao     = new CustomDaoImpl
+    val customService = new CustomServiceImpl(customDao)
+
+    new AppImpl(greetingService, customService)
   }
 }
