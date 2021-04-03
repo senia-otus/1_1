@@ -1,3 +1,6 @@
 object Main {
-  def main(args: Array[String]): Unit = println("Hello world!")
+  import ru.otus.sc.App
+  def main(args: Array[String]): Unit = {
+    App().run()
+  }
 }
