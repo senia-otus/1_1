@@ -8,11 +8,19 @@ import ru.otus.sc.greet.ExtGreetingService
 import ru.otus.sc.greet.dao.impl.GreetingDaoImpl
 import ru.otus.sc.greet.service.GreetingService
 import ru.otus.sc.greet.service.impl.GreetingServiceImpl
+import ru.otus.sc.trading.ExtTradingService
+import ru.otus.sc.trading.dao.impl.{MarketDaoImpl, WalletDaoImpl}
+import ru.otus.sc.trading.service.TradingService
+import ru.otus.sc.trading.service.impl.TradingServiceImpl
 
-trait App extends ExtGreetingService with ExtCustomService {}
+trait App extends ExtGreetingService with ExtCustomService with ExtTradingService {}
 
 object App {
-  private class AppImpl(val greeting: GreetingService, val custom: CustomService) extends App {}
+  private class AppImpl(
+      val greeting: GreetingService,
+      val custom: CustomService,
+      val tradingService: TradingService
+  ) extends App {}
 
   def apply(): App = {
     val greetingDao     = new GreetingDaoImpl
@@ -21,6 +29,10 @@ object App {
     val customDao     = new CustomDaoImpl
     val customService = new CustomServiceImpl(customDao)
 
-    new AppImpl(greetingService, customService)
+    val marketDao      = new MarketDaoImpl
+    val walletDao      = new WalletDaoImpl
+    val tradingService = new TradingServiceImpl(marketDao, walletDao)
+
+    new AppImpl(greetingService, customService, tradingService)
   }
 }
